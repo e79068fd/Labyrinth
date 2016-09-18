@@ -2,6 +2,7 @@
 #define OGLWindow_H
 
 #include "geometryengine.h"
+#include "box.h"
 
 #include <QWindow>
 #include <QOpenGLWindow>
@@ -16,6 +17,7 @@
 #include <QBasicTimer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QVector>
 
 class GeometryEngine;
 
@@ -54,6 +56,13 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
+
+    QVector<Box> boxs;
+    QVector<QVector<QColor>> ignoreBoxs;
+    GLubyte* centralPixel;
+    QColor ignoreColorId;
+
+    GLint rendTexture;
 
 signals:
     void changeWindow();

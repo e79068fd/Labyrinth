@@ -9,6 +9,56 @@ OGLWindow::OGLWindow() :
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);
     setFormat(format);
+
+    rendTexture = 0;
+    centralPixel = new GLubyte[4]; //RGBA
+
+    //hardcode maze
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(-1.0, -0.05, -1.0), QVector3D(1.0, 0.0, 1.0), QColor(0, 0, 255)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(-1.0, 0.3, -1.0), QVector3D(1.0, 0.35, 1.0), QColor(255, 0, 0)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(-1.0, 0.01, -1.0), QVector3D(-0.95, 0.29, -0.95), QColor(240, 0, 240)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(0.95, 0.01, -1.0), QVector3D(1, 0.29, -0.95), QColor(225, 0, 225)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(0.95, 0.01, 0.95), QVector3D(1.0, 0.29, 1), QColor(210, 0, 210)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(-1, 0.01, 0.95), QVector3D(-0.95, 0.29, 1), QColor(195, 0, 195)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(-0.95, 0.01, -1), QVector3D(0.95, 0.29, -0.95), QColor(0, 255, 0)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+    ignoreBoxs.back().push_back(boxs[2].getColor());
+    ignoreBoxs.back().push_back(boxs[3].getColor());
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(0.95, 0.01, -0.95), QVector3D(1, 0.29, 0.95), QColor(0, 200, 0)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+    ignoreBoxs.back().push_back(boxs[3].getColor());
+    ignoreBoxs.back().push_back(boxs[4].getColor());
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(-0.95, 0.01, 0.95), QVector3D(0.95, 0.29, 1), QColor(0, 145, 0)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+    ignoreBoxs.back().push_back(boxs[4].getColor());
+    ignoreBoxs.back().push_back(boxs[5].getColor());
+    ignoreBoxs.push_back(QVector<QColor>());
+    boxs.push_back(Box(QVector3D(-1.0, 0.01, -0.95), QVector3D(-0.95, 0.29, 0.95), QColor(0, 90, 0)));
+    ignoreBoxs.back().push_back(boxs.back().getColor());
+    ignoreBoxs.back().push_back(boxs[5].getColor());
+    ignoreBoxs.back().push_back(boxs[2].getColor());
+
+    boxs.push_back(Box(QVector3D(-0.95, 0.01, -0.7), QVector3D(0.7, 0.29, -0.65), QColor(128, 128, 128)));
+    boxs.push_back(Box(QVector3D(0.65, 0.01, -0.65), QVector3D(0.7, 0.29, 0.7), QColor(128, 128, 128)));
+    boxs.push_back(Box(QVector3D(-0.35, 0.01, 0.65), QVector3D(0.65, 0.29, 0.7), QColor(128, 128, 128)));
+    boxs.push_back(Box(QVector3D(-0.35, 0.01, 0.65), QVector3D(-0.3, 0.29, -0.30), QColor(128, 128, 128)));
 }
 
 OGLWindow::~OGLWindow()
@@ -16,6 +66,7 @@ OGLWindow::~OGLWindow()
     makeCurrent();
     delete texture;
     delete geometries;
+    delete []centralPixel;
     doneCurrent();
 }
 
@@ -56,6 +107,9 @@ void OGLWindow::touchEvent(QTouchEvent *event) {
     case QTouchEvent::TouchEnd: {
         break;
     }
+    default: {
+        break;
+    }
     }
 }
 
@@ -70,10 +124,12 @@ void OGLWindow::initializeGL() {
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Enable back face culling
     glEnable(GL_CULL_FACE);
+
+
 
     //glEnable(GL_LIGHTING);
     //glEnable(GL_LIGHT0);
@@ -81,7 +137,7 @@ void OGLWindow::initializeGL() {
     geometries = new GeometryEngine;
 
     // Use QBasicTimer because its faster than QTimer
-    timer.start(12, this);
+    timer.start(1000/60, this);
 }
 
 void OGLWindow::initShaders() {
@@ -134,34 +190,47 @@ void OGLWindow::resizeGL(int w, int h) {
 void OGLWindow::paintGL() {
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    program.setUniformValue("rendTexture", rendTexture);
     texture->bind();
 
     // Calculate model view transformation
     QMatrix4x4 matrix;
 
-    matrix.translate(1.0, 0.0, -5.0);
+
+
+    matrix.translate(0.0, 0.0, -5.0);
     matrix.rotate(rotation);
-    matrix.scale(0.5);
 
+    //---Search nearest box---
+    program.setUniformValue("rendTexture", 0);
+    for(int i = 0; i < 10; i++) {
+        // Set modelview-projection matrix
+        program.setUniformValue("mvp_matrix", projection * matrix * boxs[i].getMatrix());
+        program.setUniformValue("color", boxs[i].getColor());
 
-    // Set modelview-projection matrix
-    program.setUniformValue("mvp_matrix", projection * matrix);
+        // Draw cube geometry
+        geometries->drawCubeGeometry(&program);
+    }
 
-    // Use texture unit 0 which contains cube.png
-    program.setUniformValue("texture", 0);
+    glReadPixels(geometry().width() / 2, geometry().height() / 2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, centralPixel);
+    ignoreColorId.setRgb(centralPixel[0], centralPixel[1], centralPixel[2], centralPixel[3]);
+    program.setUniformValue("rendTexture", rendTexture);
+    //--- ---
 
-    // Draw cube geometry
-    geometries->drawCubeGeometry(&program);
-    //qDebug() << glGetError();
+    //---render box---
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for(int i = 0; i < boxs.size(); i++) {
+        if(i >= ignoreBoxs.size() || ignoreBoxs[i].indexOf(ignoreColorId) == -1) {
+            // Set modelview-projection matrix
+            program.setUniformValue("mvp_matrix", projection * matrix * boxs[i].getMatrix());
+            program.setUniformValue("color", boxs[i].getColor());
 
-    QMatrix4x4 matrix2;
+            // Draw cube geometry
+            geometries->drawCubeGeometry(&program);
+        }
+    }
+    //--- ---
 
-    matrix2.translate(-1.0, 0.0, -5.0);
-    matrix2.rotate(rotation);
-    matrix2.scale(0.5);
-    program.setUniformValue("mvp_matrix", projection * matrix2);
-    geometries->drawCubeGeometry(&program);
 }
 
 void OGLWindow::timerEvent(QTimerEvent *)

@@ -15,12 +15,14 @@ TEMPLATE = app
 SOURCES += main.cpp \
     oglwindow.cpp \
     mainwindow.cpp \
-    geometryengine.cpp
+    geometryengine.cpp \
+    box.cpp
 
 HEADERS  += \
     oglwindow.h \
     mainwindow.h \
-    geometryengine.h
+    geometryengine.h \
+    box.h
 
 FORMS    += \
     mainwindow.ui

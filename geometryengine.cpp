@@ -118,9 +118,9 @@ void GeometryEngine::drawCubeGeometry(QOpenGLShaderProgram *program)
     program->enableAttributeArray(texcoordLocation);
     program->setAttributeBuffer(texcoordLocation, GL_FLOAT, offset, 2, sizeof(VertexData));
 
-    QColor color;
-    color.setRgb(0, 0, 255, 28);
-    program->setUniformValue("color", color);
+    //QColor color;
+    //color.setRgb(0, 0, 255, 28);
+    //program->setUniformValue("color", color);
 
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
