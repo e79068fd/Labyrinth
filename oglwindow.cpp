@@ -72,44 +72,70 @@ OGLWindow::~OGLWindow()
 
 
 void OGLWindow::touchEvent(QTouchEvent *event) {
-    switch(event->type()) {
-    case QTouchEvent::TouchBegin: {
-        QList<QTouchEvent::TouchPoint> list = event->touchPoints();
-        QTouchEvent::TouchPoint point = *list.begin();
-        qDebug() << point.pos().x() << point.pos().y();
-        if(point.pos().x() < 100 && point.pos().y() < 100) {
-            hide();
-            emit changeWindow();
+    if(event->type() == QTouchEvent::TouchEnd) {
+        oldTouchCount = 0;
+        return;
+    }
+
+    QList<QTouchEvent::TouchPoint> listTouch = event->touchPoints();
+
+    int myType = (oldTouchCount == listTouch.size()) ? QTouchEvent::TouchUpdate : QTouchEvent::TouchBegin;
+    oldTouchCount = listTouch.size();
+
+    switch(myType) {
+        case QTouchEvent::TouchBegin: {
+            if(oldTouchCount == 1) {
+                QTouchEvent::TouchPoint point = *listTouch.begin();
+                if(point.pos().x() < 100 && point.pos().y() < 100) {
+                    hide();
+                    emit changeWindow();
+                }
+                mousePressPosition = QVector2D(point.pos());
+            } else if (oldTouchCount == 2) {
+                QPointF diff = listTouch.first().pos() - listTouch.last().pos();
+                oldAtan = qAtan(diff.y() / diff.x());
+            }
+            break;
         }
-        mousePressPosition = QVector2D(point.pos());
-        break;
-    }
-    case QTouchEvent::TouchUpdate: {
-        QList<QTouchEvent::TouchPoint> list = event->touchPoints();
-        QTouchEvent::TouchPoint point = *list.begin();
-        QVector2D diff = QVector2D(point.pos()) - mousePressPosition;
-        mousePressPosition = QVector2D(point.pos());
+        case QTouchEvent::TouchUpdate: {
+            qreal x, y, z, length;
+            if(listTouch.size() == 1) {
+                QTouchEvent::TouchPoint point = *listTouch.begin();
+                QVector2D diff = QVector2D(point.pos()) - mousePressPosition;
+                mousePressPosition = QVector2D(point.pos());
+                x = diff.y(); y = diff.x(); z = 0;
+                length = diff.length() / 5.0;
+            } else if (oldTouchCount == 2) {
+                QPointF diff = listTouch.first().pos() - listTouch.last().pos();
+                qreal atan = qAtan(diff.y() / diff.x());
+                x = 0; y = 0; z = oldAtan - atan;
+                if(qAbs(z) > 2) { // 2 is 114.592 Degrees in Radians
+                    qreal sign = atan < 0 ? -1 : 1;
+                    oldAtan = sign * (2 * 1.5708 - qAbs(oldAtan)); // 1.5708 is 90 Degrees in Radians
+                    z = oldAtan - atan;
+                }
+                length = qAbs(z) * 100;
+                oldAtan = atan;
+            } else {
+                break;
+            }
+            // Rotation axis is perpendicular to the mouse position difference
+            // vector
+            QVector3D n = QVector3D(x, y, z).normalized();
 
-        // Rotation axis is perpendicular to the mouse position difference
-        // vector
-        QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+            // Accelerate angular speed relative to the length of the mouse sweep
+            qreal acc = length;
 
-        // Accelerate angular speed relative to the length of the mouse sweep
-        qreal acc = diff.length() / 5.0;
+            // Calculate new rotation axis as weighted sum
+            rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
 
-        // Calculate new rotation axis as weighted sum
-        rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
-
-        // Increase angular speed
-        angularSpeed = acc;
-        break;
-    }
-    case QTouchEvent::TouchEnd: {
-        break;
-    }
-    default: {
-        break;
-    }
+            // Increase angular speed
+            angularSpeed = acc;
+            break;
+        }
+        default: {
+            break;
+        }
     }
 }
 

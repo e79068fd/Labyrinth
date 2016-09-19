@@ -18,6 +18,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QVector>
+#include <qmath.h>
 
 class GeometryEngine;
 
@@ -63,6 +64,9 @@ private:
     QColor ignoreColorId;
 
     GLint rendTexture;
+
+    int oldTouchCount;
+    qreal oldAtan;
 
 signals:
     void changeWindow();
