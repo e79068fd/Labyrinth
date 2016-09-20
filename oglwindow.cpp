@@ -13,6 +13,9 @@ OGLWindow::OGLWindow() :
     rendTexture = 0;
     centralPixel = new GLubyte[4]; //RGBA
 
+    framesPerSecond = 0;
+    lastTime = 0;
+
     //hardcode maze
     ignoreBoxs.push_back(QVector<QColor>());
     boxs.push_back(Box(QVector3D(-1.0, -0.05, -1.0), QVector3D(1.0, 0.0, 1.0), QColor(0, 0, 255)));
@@ -214,6 +217,8 @@ void OGLWindow::resizeGL(int w, int h) {
 }
 
 void OGLWindow::paintGL() {
+    fps();
+
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     program.setUniformValue("rendTexture", rendTexture);
@@ -256,7 +261,6 @@ void OGLWindow::paintGL() {
         }
     }
     //--- ---
-
 }
 
 void OGLWindow::timerEvent(QTimerEvent *)
@@ -273,5 +277,27 @@ void OGLWindow::timerEvent(QTimerEvent *)
 
         // Request an update
         update();
+    }
+}
+
+void OGLWindow::fps() {
+    int currentTime = QTime::currentTime().msecsSinceStartOfDay();
+
+    //Увеличиваем счетчик кадров
+    framesPerSecond++;
+
+    //Теперь вычтем из текущего времени последнее запомненное время. Если результат больше единицы,
+    //это значит, что секунда прошла и нужно вывести новый FPS.
+    if(currentTime - lastTime > 1000)
+    {
+        //Устанавливаем lastTime в текущее время. Теперь оно будет использоватся как предидущее время
+        //для след. секунды.
+        lastTime = currentTime;
+
+        // Установим FPS для вывода:
+        qDebug() << "FPS: " << framesPerSecond;
+
+        //Сбросим FPS
+        framesPerSecond = 0;
     }
 }

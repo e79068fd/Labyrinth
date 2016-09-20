@@ -19,6 +19,7 @@
 #include <QOpenGLTexture>
 #include <QVector>
 #include <qmath.h>
+#include <QTime>
 
 class GeometryEngine;
 
@@ -67,6 +68,10 @@ private:
 
     int oldTouchCount;
     qreal oldAtan;
+
+    int framesPerSecond;
+    int lastTime;
+    void fps();
 
 signals:
     void changeWindow();
