@@ -39,7 +39,9 @@ DISTFILES += \
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradlew.bat \
     vshader.vsh \
-    fshader.fsh
+    fshader.fsh \
+    lightingshader.fsh \
+    lightingshader.vsh
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

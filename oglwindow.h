@@ -48,6 +48,7 @@ protected:
 private:
     QBasicTimer timer;
     QOpenGLShaderProgram program;
+    QOpenGLShaderProgram lightingProgram;
     GeometryEngine *geometries;
 
     QOpenGLTexture *texture;
@@ -72,6 +73,9 @@ private:
     int framesPerSecond;
     int lastTime;
     void fps();
+
+    PlaneDrawObject* plane;
+    BoxDrawObject* boxDraw;
 
 signals:
     void changeWindow();

@@ -16,6 +16,11 @@ OGLWindow::OGLWindow() :
     framesPerSecond = 0;
     lastTime = 0;
 
+    angularSpeed = 1;
+    rotationAxis.setX(1);
+    rotationAxis.setY(1);
+    rotationAxis.setZ(1);
+
     //hardcode maze
     ignoreBoxs.push_back(QVector<QColor>());
     boxs.push_back(Box(QVector3D(-1.0, -0.05, -1.0), QVector3D(1.0, 0.0, 1.0), QColor(0, 0, 255)));
@@ -25,43 +30,43 @@ OGLWindow::OGLWindow() :
     ignoreBoxs.back().push_back(boxs.back().getColor());
 
     ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-1.0, 0.01, -1.0), QVector3D(-0.95, 0.29, -0.95), QColor(240, 0, 240)));
+    boxs.push_back(Box(QVector3D(-1.0, 0.0, -1.0), QVector3D(-0.95, 0.3, -0.95), QColor(240, 0, 240)));
     ignoreBoxs.back().push_back(boxs.back().getColor());
     ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(0.95, 0.01, -1.0), QVector3D(1, 0.29, -0.95), QColor(225, 0, 225)));
+    boxs.push_back(Box(QVector3D(0.95, 0.0, -1.0), QVector3D(1, 0.3, -0.95), QColor(225, 0, 225)));
     ignoreBoxs.back().push_back(boxs.back().getColor());
     ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(0.95, 0.01, 0.95), QVector3D(1.0, 0.29, 1), QColor(210, 0, 210)));
+    boxs.push_back(Box(QVector3D(0.95, 0.0, 0.95), QVector3D(1.0, 0.3, 1), QColor(210, 0, 210)));
     ignoreBoxs.back().push_back(boxs.back().getColor());
     ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-1, 0.01, 0.95), QVector3D(-0.95, 0.29, 1), QColor(195, 0, 195)));
+    boxs.push_back(Box(QVector3D(-1, 0.0, 0.95), QVector3D(-0.95, 0.3, 1), QColor(195, 0, 195)));
     ignoreBoxs.back().push_back(boxs.back().getColor());
 
     ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-0.95, 0.01, -1), QVector3D(0.95, 0.29, -0.95), QColor(0, 255, 0)));
+    boxs.push_back(Box(QVector3D(-0.95, 0.0, -1), QVector3D(0.95, 0.3, -0.95), QColor(0, 255, 0)));
     ignoreBoxs.back().push_back(boxs.back().getColor());
     ignoreBoxs.back().push_back(boxs[2].getColor());
     ignoreBoxs.back().push_back(boxs[3].getColor());
     ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(0.95, 0.01, -0.95), QVector3D(1, 0.29, 0.95), QColor(0, 200, 0)));
+    boxs.push_back(Box(QVector3D(0.95, 0.0, -0.95), QVector3D(1, 0.3, 0.95), QColor(0, 200, 0)));
     ignoreBoxs.back().push_back(boxs.back().getColor());
     ignoreBoxs.back().push_back(boxs[3].getColor());
     ignoreBoxs.back().push_back(boxs[4].getColor());
     ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-0.95, 0.01, 0.95), QVector3D(0.95, 0.29, 1), QColor(0, 145, 0)));
+    boxs.push_back(Box(QVector3D(-0.95, 0.0, 0.95), QVector3D(0.95, 0.3, 1), QColor(0, 145, 0)));
     ignoreBoxs.back().push_back(boxs.back().getColor());
     ignoreBoxs.back().push_back(boxs[4].getColor());
     ignoreBoxs.back().push_back(boxs[5].getColor());
     ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-1.0, 0.01, -0.95), QVector3D(-0.95, 0.29, 0.95), QColor(0, 90, 0)));
+    boxs.push_back(Box(QVector3D(-1.0, 0.0, -0.95), QVector3D(-0.95, 0.3, 0.95), QColor(0, 90, 0)));
     ignoreBoxs.back().push_back(boxs.back().getColor());
     ignoreBoxs.back().push_back(boxs[5].getColor());
     ignoreBoxs.back().push_back(boxs[2].getColor());
 
-    boxs.push_back(Box(QVector3D(-0.95, 0.01, -0.7), QVector3D(0.7, 0.29, -0.65), QColor(128, 128, 128)));
-    boxs.push_back(Box(QVector3D(0.65, 0.01, -0.65), QVector3D(0.7, 0.29, 0.7), QColor(128, 128, 128)));
-    boxs.push_back(Box(QVector3D(-0.35, 0.01, 0.65), QVector3D(0.65, 0.29, 0.7), QColor(128, 128, 128)));
-    boxs.push_back(Box(QVector3D(-0.35, 0.01, 0.65), QVector3D(-0.3, 0.29, -0.30), QColor(128, 128, 128)));
+    boxs.push_back(Box(QVector3D(-0.95, 0.0, -0.7), QVector3D(0.7, 0.3, -0.65), QColor(128, 128, 128)));
+    boxs.push_back(Box(QVector3D(0.65, 0.0, -0.65), QVector3D(0.7, 0.3, 0.7), QColor(128, 128, 128)));
+    boxs.push_back(Box(QVector3D(-0.35, 0.0, 0.65), QVector3D(0.65, 0.3, 0.7), QColor(128, 128, 128)));
+    boxs.push_back(Box(QVector3D(-0.35, 0.0 + 1e-3, 0.65), QVector3D(-0.3, 0.3 - 1e-3, -0.3), QColor(128, 128, 128)));
 }
 
 OGLWindow::~OGLWindow()
@@ -157,13 +162,22 @@ void OGLWindow::initializeGL() {
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Enable back face culling
     glEnable(GL_CULL_FACE);
-
-
-
+    glEnable(GL_FRONT_AND_BACK);
     //glEnable(GL_LIGHTING);
     //glEnable(GL_LIGHT0);
 
     geometries = new GeometryEngine;
+
+    QVector2D texcoords[] = {
+        QVector2D(0, 0),
+        QVector2D(0.33, 0),
+        QVector2D(0, 0.5),
+        QVector2D(0.33, 0.5)
+    };
+    plane = new PlaneDrawObject;
+    plane->setTexture(texcoords);
+
+    boxDraw = new BoxDrawObject;
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(1000/60, this);
@@ -185,6 +199,24 @@ void OGLWindow::initShaders() {
     // Bind shader pipeline for use
     if (!program.bind())
         close();
+
+
+    // Compile vertex shader
+    if (!lightingProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/lightingshader.vsh"))
+        close();
+
+    // Compile fragment shader
+    if (!lightingProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/lightingshader.fsh"))
+        close();
+
+    // Link shader pipeline
+    if (!lightingProgram.link())
+        close();
+
+    // Bind shader pipeline for use
+    //if (!lightingProgram.bind())
+    //    close();
+
 }
 
 void OGLWindow::initTextures() {
@@ -221,18 +253,17 @@ void OGLWindow::paintGL() {
 
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    program.setUniformValue("rendTexture", rendTexture);
+    //program.setUniformValue("rendTexture", rendTexture);
     texture->bind();
 
     // Calculate model view transformation
     QMatrix4x4 matrix;
 
-
-
     matrix.translate(0.0, 0.0, -5.0);
     matrix.rotate(rotation);
 
     //---Search nearest box---
+    program.bind();
     program.setUniformValue("rendTexture", 0);
     for(int i = 0; i < 10; i++) {
         // Set modelview-projection matrix
@@ -240,7 +271,8 @@ void OGLWindow::paintGL() {
         program.setUniformValue("color", boxs[i].getColor());
 
         // Draw cube geometry
-        geometries->drawCubeGeometry(&program);
+        //geometries->drawCubeGeometry(&program);
+        boxDraw->draw(&program);
     }
 
     glReadPixels(geometry().width() / 2, geometry().height() / 2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, centralPixel);
@@ -248,36 +280,46 @@ void OGLWindow::paintGL() {
     program.setUniformValue("rendTexture", rendTexture);
     //--- ---
 
+    //return;
     //---render box---
+    lightingProgram.bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for(int i = 0; i < boxs.size(); i++) {
         if(i >= ignoreBoxs.size() || ignoreBoxs[i].indexOf(ignoreColorId) == -1) {
+            // Set modelview matrix
+            lightingProgram.setUniformValue("mv_matrix", matrix * boxs[i].getMatrix());
             // Set modelview-projection matrix
-            program.setUniformValue("mvp_matrix", projection * matrix * boxs[i].getMatrix());
-            program.setUniformValue("color", boxs[i].getColor());
+            lightingProgram.setUniformValue("mvp_matrix", projection * matrix * boxs[i].getMatrix());
+            lightingProgram.setUniformValue("color", boxs[i].getColor());
 
             // Draw cube geometry
-            geometries->drawCubeGeometry(&program);
+            boxDraw->draw(&lightingProgram);
+            //geometries->drawCubeGeometry(&program);
         }
     }
     //--- ---
+    //program.setUniformValue("rendTexture", 1);
+    //QMatrix4x4 matrix2;
+    //matrix2.translate(-0.5, 0.5, 0);
+    //matrix2.scale(0.5);
+    //program.setUniformValue("mvp_matrix", matrix2);
+    //plane->draw(&program);
 }
 
 void OGLWindow::timerEvent(QTimerEvent *)
 {
     // Decrease angular speed (friction)
-    angularSpeed *= 0.99;
+    //angularSpeed *= 0.99;
 
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {
         angularSpeed = 0.0;
     } else {
         // Update rotation
-        rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
-
-        // Request an update
-        update();
+        rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;       
     }
+    // Request an update
+    update();
 }
 
 void OGLWindow::fps() {

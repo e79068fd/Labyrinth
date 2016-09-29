@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>fshader.fsh</file>
         <file>vshader.vsh</file>
+        <file>lightingshader.fsh</file>
+        <file>lightingshader.vsh</file>
     </qresource>
 </RCC>
