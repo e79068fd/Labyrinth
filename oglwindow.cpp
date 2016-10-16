@@ -67,6 +67,8 @@ OGLWindow::OGLWindow() :
     boxs.push_back(Box(QVector3D(0.65, 0.0, -0.65), QVector3D(0.7, 0.3, 0.7), QColor(128, 128, 128)));
     boxs.push_back(Box(QVector3D(-0.35, 0.0, 0.65), QVector3D(0.65, 0.3, 0.7), QColor(128, 128, 128)));
     boxs.push_back(Box(QVector3D(-0.35, 0.0 + 1e-3, 0.65), QVector3D(-0.3, 0.3 - 1e-3, -0.3), QColor(128, 128, 128)));
+
+    initLabyrinth();
 }
 
 OGLWindow::~OGLWindow()
@@ -163,8 +165,6 @@ void OGLWindow::initializeGL() {
     // Enable back face culling
     glEnable(GL_CULL_FACE);
     glEnable(GL_FRONT_AND_BACK);
-    //glEnable(GL_LIGHTING);
-    //glEnable(GL_LIGHT0);
 
     geometries = new GeometryEngine;
 
@@ -196,11 +196,6 @@ void OGLWindow::initShaders() {
     if (!program.link())
         close();
 
-    // Bind shader pipeline for use
-    if (!program.bind())
-        close();
-
-
     // Compile vertex shader
     if (!lightingProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/lightingshader.vsh"))
         close();
@@ -212,11 +207,6 @@ void OGLWindow::initShaders() {
     // Link shader pipeline
     if (!lightingProgram.link())
         close();
-
-    // Bind shader pipeline for use
-    //if (!lightingProgram.bind())
-    //    close();
-
 }
 
 void OGLWindow::initTextures() {
@@ -232,6 +222,49 @@ void OGLWindow::initTextures() {
     // Wrap texture coordinates by repeating
     // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
     texture->setWrapMode(QOpenGLTexture::ClampToEdge);
+}
+
+void OGLWindow::initLabyrinth() {
+    labyrinth = new Labyrinth();
+
+    labyrinth->addWall(QVector3D(40, 1, 40), QVector3D(-20, -1, -20));
+    labyrinth->addWall(QVector3D(40, 1, 40), QVector3D(-20,  6, -20));
+
+    labyrinth->addWall(QVector3D(1, 6, 1), QVector3D(-20, 0, -20));
+    labyrinth->addWall(QVector3D(1, 6, 1), QVector3D( 19, 0, -20));
+    labyrinth->addWall(QVector3D(1, 6, 1), QVector3D( 19, 0,  19));
+    labyrinth->addWall(QVector3D(1, 6, 1), QVector3D(-20, 0,  19));
+
+    labyrinth->addWall(QVector3D(38, 6,  1), QVector3D(-19, 0, -20));
+    labyrinth->addWall(QVector3D( 1, 6, 38), QVector3D( 19, 0, -19));
+    labyrinth->addWall(QVector3D(38, 6,  1), QVector3D(-19, 0,  19));
+    labyrinth->addWall(QVector3D( 1, 6, 38), QVector3D(-20, 0, -19));
+
+    labyrinth->addIgnore(0, labyrinth->getWallColor(0));
+    labyrinth->addIgnore(1, labyrinth->getWallColor(1));
+
+    labyrinth->addIgnore(2, labyrinth->getWallColor(2));
+    labyrinth->addIgnore(3, labyrinth->getWallColor(3));
+    labyrinth->addIgnore(4, labyrinth->getWallColor(4));
+    labyrinth->addIgnore(5, labyrinth->getWallColor(5));
+
+    labyrinth->addIgnore(6, labyrinth->getWallColor(6));
+    labyrinth->addIgnore(6, labyrinth->getWallColor(2));
+    labyrinth->addIgnore(6, labyrinth->getWallColor(3));
+
+    labyrinth->addIgnore(7, labyrinth->getWallColor(7));
+    labyrinth->addIgnore(7, labyrinth->getWallColor(3));
+    labyrinth->addIgnore(7, labyrinth->getWallColor(4));
+
+    labyrinth->addIgnore(8, labyrinth->getWallColor(8));
+    labyrinth->addIgnore(8, labyrinth->getWallColor(4));
+    labyrinth->addIgnore(8, labyrinth->getWallColor(5));
+
+    labyrinth->addIgnore(9, labyrinth->getWallColor(9));
+    labyrinth->addIgnore(9, labyrinth->getWallColor(5));
+    labyrinth->addIgnore(9, labyrinth->getWallColor(2));
+
+    //labyrinth->addWall(QVector3D(), QVector3D());
 }
 
 void OGLWindow::resizeGL(int w, int h) {
@@ -258,20 +291,21 @@ void OGLWindow::paintGL() {
 
     // Calculate model view transformation
     QMatrix4x4 matrix;
+    //auto ma = matrix.toGenericMatrix;
 
     matrix.translate(0.0, 0.0, -5.0);
     matrix.rotate(rotation);
+    matrix.scale(0.05);
 
-    //---Search nearest box---
+    //---Search nearest box--
     program.bind();
     program.setUniformValue("rendTexture", 0);
     for(int i = 0; i < 10; i++) {
         // Set modelview-projection matrix
-        program.setUniformValue("mvp_matrix", projection * matrix * boxs[i].getMatrix());
-        program.setUniformValue("color", boxs[i].getColor());
+        program.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
+        program.setUniformValue("color", labyrinth->getWallColor(i));
 
         // Draw cube geometry
-        //geometries->drawCubeGeometry(&program);
         boxDraw->draw(&program);
     }
 
@@ -284,17 +318,18 @@ void OGLWindow::paintGL() {
     //---render box---
     lightingProgram.bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for(int i = 0; i < boxs.size(); i++) {
-        if(i >= ignoreBoxs.size() || ignoreBoxs[i].indexOf(ignoreColorId) == -1) {
+    //lightingProgram.setUniformValue("color", QColor(50, 205, 50));
+    for(int i = 0; i < labyrinth->getWallCount(); i++) {
+        if(!labyrinth->isIgnore(i, ignoreColorId)) {
             // Set modelview matrix
-            lightingProgram.setUniformValue("mv_matrix", matrix * boxs[i].getMatrix());
+            lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getWallMatrix(i));
             // Set modelview-projection matrix
-            lightingProgram.setUniformValue("mvp_matrix", projection * matrix * boxs[i].getMatrix());
+            lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
+
             lightingProgram.setUniformValue("color", boxs[i].getColor());
 
             // Draw cube geometry
-            boxDraw->draw(&lightingProgram);
-            //geometries->drawCubeGeometry(&program);
+            boxDraw->draw(&lightingProgram);\
         }
     }
     //--- ---

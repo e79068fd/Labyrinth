@@ -29,3 +29,7 @@ void Box::setColor(const QColor& color) {
 const QColor& Box::getColor() const {
     return this->color;
 }
+
+const QPair<QVector3D, QVector3D>& Box::getPoints() const {
+    return QPair<QVector3D, QVector3D>(first, last);
+}

@@ -3,6 +3,7 @@
 
 #include "geometryengine.h"
 #include "box.h"
+#include "labyrinth.h"
 
 #include <QWindow>
 #include <QOpenGLWindow>
@@ -44,6 +45,7 @@ protected:
 
     void initShaders();
     void initTextures();
+    void initLabyrinth();
 
 private:
     QBasicTimer timer;
@@ -76,6 +78,8 @@ private:
 
     PlaneDrawObject* plane;
     BoxDrawObject* boxDraw;
+    Labyrinth* labyrinth;
+
 
 signals:
     void changeWindow();

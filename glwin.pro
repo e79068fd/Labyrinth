@@ -16,13 +16,37 @@ SOURCES += main.cpp \
     oglwindow.cpp \
     mainwindow.cpp \
     geometryengine.cpp \
-    box.cpp
+    box.cpp \
+    ../lib/bullet/LinearMath/*.cpp\
+    ../lib/bullet/BulletCollision/BroadphaseCollision/*.cpp\
+    ../lib/bullet/BulletCollision/CollisionDispatch/*.cpp\
+    ../lib/bullet/BulletCollision/CollisionShapes/*.cpp\
+    ../lib/bullet/BulletCollision/Gimpact/*.cpp\
+    ../lib/bullet/BulletCollision/NarrowPhaseCollision/*.cpp\
+    ../lib/bullet/BulletDynamics/Character/*.cpp\
+    ../lib/bullet/BulletDynamics/ConstraintSolver/*.cpp\
+    ../lib/bullet/BulletDynamics/Dynamics/*.cpp\
+    ../lib/bullet/BulletDynamics/Vehicle/*.cpp \
+    labyrinth.cpp
 
 HEADERS  += \
     oglwindow.h \
     mainwindow.h \
     geometryengine.h \
-    box.h
+    box.h \
+    ../lib/bullet/LinearMath/*.h\
+    ../lib/bullet/BulletCollision/BroadphaseCollision/*.h\
+    ../lib/bullet/BulletCollision/CollisionDispatch/*.h\
+    ../lib/bullet/BulletCollision/CollisionShapes/*.h\
+    ../lib/bullet/BulletCollision/Gimpact/*.h\
+    ../lib/bullet/BulletCollision/NarrowPhaseCollision/*.h\
+    ../lib/bullet/BulletDynamics/Character/*.h\
+    ../lib/bullet/BulletDynamics/ConstraintSolver/*.h\
+    ../lib/bullet/BulletDynamics/Dynamics/*.h\
+    ../lib/bullet/BulletDynamics/Vehicle/*.h \
+    labyrinth.h
+
+INCLUDEPATH += ../lib/bullet
 
 FORMS    += \
     mainwindow.ui

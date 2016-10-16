@@ -13,6 +13,7 @@ public:
     const QMatrix4x4& getMatrix() const;
     void setColor(const QColor&);
     const QColor& getColor() const;
+    const QPair<QVector3D, QVector3D>& getPoints() const;
 
 private:
     QVector3D first, last;
