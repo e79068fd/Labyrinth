@@ -55,7 +55,7 @@ void Labyrinth::addBall(const QVector3D& translate) {
     btCollisionShape* ball = new btSphereShape(1);
 
     btDefaultMotionState* ballMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), toBtVector3(translate)));
-    btScalar mass = 1;
+    btScalar mass = 10;
     btVector3 inertia(0, 0, 0);
     ball->calculateLocalInertia(mass, inertia);
     btRigidBody::btRigidBodyConstructionInfo ballRigidBodyCI(mass, ballMotionState, ball, inertia);
@@ -115,4 +115,5 @@ bool Labyrinth::isIgnore(int index, const QColor& color) {
 
 void Labyrinth::step() {
     dynamicsWorld->stepSimulation(1 / 60.f, 30);
+    qDebug() << dynamicsWorld->getDispatcher()->getNumManifolds();
 }

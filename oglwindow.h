@@ -42,10 +42,15 @@ protected:
     void paintGL();
     void touchEvent(QTouchEvent* event);
     void timerEvent(QTimerEvent *e);
+    void mousePressEvent(QMouseEvent* e);
+    void mouseMoveEvent(QMouseEvent* e);
 
     void initShaders();
     void initTextures();
     void initLabyrinth();
+
+    void beginMoveEvent(const QPointF& first, const QPointF& last, int type);
+    void updateMoveEvent(const QPointF& first, const QPointF& last, int type);
 
 private:
     QBasicTimer timer;
@@ -69,7 +74,7 @@ private:
 
     GLint rendTexture;
 
-    int oldTouchCount;
+    int oldMoveType;
     qreal oldAtan;
 
     int framesPerSecond;

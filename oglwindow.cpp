@@ -16,11 +16,6 @@ OGLWindow::OGLWindow() :
     framesPerSecond = 0;
     lastTime = 0;
 
-    angularSpeed = 1;
-    rotationAxis.setX(1);
-    rotationAxis.setY(1);
-    rotationAxis.setZ(1);
-
     //hardcode maze
     ignoreBoxs.push_back(QVector<QColor>());
     boxs.push_back(Box(QVector3D(-1.0, -0.05, -1.0), QVector3D(1.0, 0.0, 1.0), QColor(0, 0, 255)));
@@ -80,73 +75,95 @@ OGLWindow::~OGLWindow()
     doneCurrent();
 }
 
+void OGLWindow::beginMoveEvent(const QPointF& first, const QPointF& last, int type) {
+    switch(type) {
+        case 1:
+            if(first.x() < 100 && first.y() < 100) {
+                hide();
+                emit changeWindow();
+            }
+            mousePressPosition = QVector2D(first);
+            break;
+        case 2:
+            QPointF diff = first - last;
+            oldAtan = qAtan(diff.y() / diff.x());
+            break;
+    }
+}
+
+void OGLWindow::updateMoveEvent(const QPointF& first, const QPointF& last, int type) {
+    qreal x, y, z, length;
+    QVector2D diff;
+    switch(type) {
+        case 1:
+            diff = QVector2D(first) - mousePressPosition;
+            mousePressPosition = QVector2D(first);
+            x = diff.y(); y = diff.x(); z = 0;
+            length = diff.length() / 5.0;
+            break;
+        case 2:
+            diff = QVector2D(first) - QVector2D(last);
+            qreal atan_ = qAtan(diff.y() / diff.x());
+            x = 0; y = 0; z = oldAtan - atan_;
+            if(qAbs(z) > 2) { // 2 is 114.592 Degrees in Radians
+                qreal sign = atan_ < 0 ? -1 : 1;
+                oldAtan = sign * (2 * 1.5708 - qAbs(oldAtan)); // 1.5708 is 90 Degrees in Radians
+                z = oldAtan - atan_;
+            }
+            length = qAbs(z) * 100;
+            oldAtan = atan_;
+            break;
+    }
+    // Rotation axis is perpendicular to the mouse position difference
+    // vector
+    QVector3D n = QVector3D(x, y, z).normalized();
+
+    // Accelerate angular speed relative to the length of the mouse sweep
+    qreal acc = length;
+
+    // Calculate new rotation axis as weighted sum
+    rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
+
+    // Increase angular speed
+    angularSpeed = acc;
+}
 
 void OGLWindow::touchEvent(QTouchEvent *event) {
     if(event->type() == QTouchEvent::TouchEnd) {
-        oldTouchCount = 0;
+        oldMoveType = 0;
         return;
     }
 
     QList<QTouchEvent::TouchPoint> listTouch = event->touchPoints();
 
-    int myType = (oldTouchCount == listTouch.size()) ? QTouchEvent::TouchUpdate : QTouchEvent::TouchBegin;
-    oldTouchCount = listTouch.size();
+    int myType = (oldMoveType == listTouch.size()) ? QTouchEvent::TouchUpdate : QTouchEvent::TouchBegin;
+    oldMoveType = listTouch.size();
 
     switch(myType) {
-        case QTouchEvent::TouchBegin: {
-            if(oldTouchCount == 1) {
-                QTouchEvent::TouchPoint point = *listTouch.begin();
-                if(point.pos().x() < 100 && point.pos().y() < 100) {
-                    hide();
-                    emit changeWindow();
-                }
-                mousePressPosition = QVector2D(point.pos());
-            } else if (oldTouchCount == 2) {
-                QPointF diff = listTouch.first().pos() - listTouch.last().pos();
-                oldAtan = qAtan(diff.y() / diff.x());
-            }
+        case QTouchEvent::TouchBegin:
+            beginMoveEvent(listTouch.first().pos(), listTouch.last().pos(), oldMoveType);
             break;
-        }
-        case QTouchEvent::TouchUpdate: {
-            qreal x, y, z, length;
-            if(listTouch.size() == 1) {
-                QTouchEvent::TouchPoint point = *listTouch.begin();
-                QVector2D diff = QVector2D(point.pos()) - mousePressPosition;
-                mousePressPosition = QVector2D(point.pos());
-                x = diff.y(); y = diff.x(); z = 0;
-                length = diff.length() / 5.0;
-            } else if (oldTouchCount == 2) {
-                QPointF diff = listTouch.first().pos() - listTouch.last().pos();
-                qreal atan = qAtan(diff.y() / diff.x());
-                x = 0; y = 0; z = oldAtan - atan;
-                if(qAbs(z) > 2) { // 2 is 114.592 Degrees in Radians
-                    qreal sign = atan < 0 ? -1 : 1;
-                    oldAtan = sign * (2 * 1.5708 - qAbs(oldAtan)); // 1.5708 is 90 Degrees in Radians
-                    z = oldAtan - atan;
-                }
-                length = qAbs(z) * 100;
-                oldAtan = atan;
-            } else {
-                break;
-            }
-            // Rotation axis is perpendicular to the mouse position difference
-            // vector
-            QVector3D n = QVector3D(x, y, z).normalized();
-
-            // Accelerate angular speed relative to the length of the mouse sweep
-            qreal acc = length;
-
-            // Calculate new rotation axis as weighted sum
-            rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
-
-            // Increase angular speed
-            angularSpeed = acc;
+        case QTouchEvent::TouchUpdate:
+            updateMoveEvent(listTouch.first().pos(), listTouch.last().pos(), oldMoveType);
             break;
-        }
-        default: {
+        default:
             break;
-        }
     }
+}
+
+void OGLWindow::mousePressEvent(QMouseEvent *e) {
+    //qDebug() << e->localPos() << e->button();
+    if(e->buttons() & Qt::LeftButton)
+        beginMoveEvent(e->localPos(), QPointF(), 1);
+    if(e->buttons() & Qt::RightButton)
+        beginMoveEvent(QPointF(geometry().width() / 2., geometry().height() / 2.), e->localPos(), 2);
+}
+
+void OGLWindow::mouseMoveEvent(QMouseEvent *e) {
+    if(e->buttons() & Qt::LeftButton)
+        updateMoveEvent(e->localPos(), QPointF(), 1);
+    if(e->buttons() & Qt::RightButton)
+        updateMoveEvent(QPointF(geometry().width() / 2., geometry().height() / 2.), e->localPos(), 2);
 }
 
 void OGLWindow::initializeGL() {
@@ -358,7 +375,7 @@ void OGLWindow::paintGL() {
 void OGLWindow::timerEvent(QTimerEvent *)
 {
     // Decrease angular speed (friction)
-    //angularSpeed *= 0.99;
+    angularSpeed *= 0.99;
 
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {
