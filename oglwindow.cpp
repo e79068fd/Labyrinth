@@ -264,7 +264,13 @@ void OGLWindow::initLabyrinth() {
     labyrinth->addIgnore(9, labyrinth->getWallColor(5));
     labyrinth->addIgnore(9, labyrinth->getWallColor(2));
 
-    //labyrinth->addWall(QVector3D(), QVector3D());
+
+    labyrinth->addWall(QVector3D(33, 6, 1), QVector3D(-19, 0, -14));
+    labyrinth->addWall(QVector3D(1, 6, 27), QVector3D(14, 0, -14));
+    labyrinth->addWall(QVector3D(20, 6, 1), QVector3D(-6, 0, 12));
+    labyrinth->addWall(QVector3D(1, 6, 19), QVector3D(-6, 0, -7));
+
+    labyrinth->addBall(QVector3D(0, 3, 0));
 }
 
 void OGLWindow::resizeGL(int w, int h) {
@@ -291,7 +297,6 @@ void OGLWindow::paintGL() {
 
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    //auto ma = matrix.toGenericMatrix;
 
     matrix.translate(0.0, 0.0, -5.0);
     matrix.rotate(rotation);
@@ -332,6 +337,15 @@ void OGLWindow::paintGL() {
             boxDraw->draw(&lightingProgram);\
         }
     }
+
+    // Set modelview matrix
+    lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getBallMatrix());
+    // Set modelview-projection matrix
+    lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getBallMatrix());
+    lightingProgram.setUniformValue("color", QColor(0, 0, 0));
+    // Draw cube geometry
+    boxDraw->draw(&lightingProgram);\
+
     //--- ---
     //program.setUniformValue("rendTexture", 1);
     //QMatrix4x4 matrix2;
@@ -353,6 +367,12 @@ void OGLWindow::timerEvent(QTimerEvent *)
         // Update rotation
         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;       
     }
+
+    QMatrix4x4 matrix;
+    matrix.rotate(rotation);
+    labyrinth->setGravity((QVector3D(0, -10, 0) * matrix).normalized() * 10);
+    //Step simulation
+    labyrinth->step();
     // Request an update
     update();
 }
