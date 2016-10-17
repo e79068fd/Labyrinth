@@ -17,6 +17,7 @@ public:
     void addWall(const QVector3D& size, const QVector3D& translate);
     void addIgnore(int index, QColor color);
     void addBall(const QVector3D& translate);
+    void addFinish(const QVector3D& translate);
 
     const QMatrix4x4& getWallMatrix(int index);
     const QColor& getWallColor(int index);
@@ -24,10 +25,12 @@ public:
     int getWallCount();
 
     QMatrix4x4 getBallMatrix(int index = 0);
+    const QMatrix4x4& getFinishMatrix(int index = 0);
 
     void setGravity(const QVector3D& v);
 
     bool isIgnore(int index, const QColor &color);
+    bool checkFinish();
 
     void step();
 
@@ -39,7 +42,6 @@ private:
     int r, g, b;
     QColor getNewColor();
 
-
     btBroadphaseInterface* broadphase;
     btDefaultCollisionConfiguration* collisionConfiguration;
     btCollisionDispatcher* dispatcher;
@@ -47,6 +49,10 @@ private:
     btDiscreteDynamicsWorld* dynamicsWorld;
 
     btRigidBody* ballRigidBody;
+
+    btRigidBody* finishRigidBody;
+    QMatrix4x4 finishMatrix;
+    bool isFinish;
 };
 
 #endif // LABYRINTH_H

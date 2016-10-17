@@ -3,7 +3,8 @@
 OGLWindow::OGLWindow() :
     geometries(0),
     texture(0),
-    angularSpeed(0)
+    angularSpeed(0),
+    labyrinth(0)
 {
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
@@ -244,18 +245,18 @@ void OGLWindow::initTextures() {
 void OGLWindow::initLabyrinth() {
     labyrinth = new Labyrinth();
 
-    labyrinth->addWall(QVector3D(40, 1, 40), QVector3D(-20, -1, -20));
-    labyrinth->addWall(QVector3D(40, 1, 40), QVector3D(-20,  6, -20));
+    labyrinth->addWall(QVector3D(20, 0.5, 20), QVector3D(0, -0.5, 0));
+    labyrinth->addWall(QVector3D(20, 0.5, 20), QVector3D(0,  6.5, 0));
 
-    labyrinth->addWall(QVector3D(1, 6, 1), QVector3D(-20, 0, -20));
-    labyrinth->addWall(QVector3D(1, 6, 1), QVector3D( 19, 0, -20));
-    labyrinth->addWall(QVector3D(1, 6, 1), QVector3D( 19, 0,  19));
-    labyrinth->addWall(QVector3D(1, 6, 1), QVector3D(-20, 0,  19));
+    labyrinth->addWall(QVector3D(0.5, 3, 0.5), QVector3D(-19.5, 3, -19.5));
+    labyrinth->addWall(QVector3D(0.5, 3, 0.5), QVector3D( 19.5, 3, -19.5));
+    labyrinth->addWall(QVector3D(0.5, 3, 0.5), QVector3D( 19.5, 3,  19.5));
+    labyrinth->addWall(QVector3D(0.5, 3, 0.5), QVector3D(-19.5, 3,  19.5));
 
-    labyrinth->addWall(QVector3D(38, 6,  1), QVector3D(-19, 0, -20));
-    labyrinth->addWall(QVector3D( 1, 6, 38), QVector3D( 19, 0, -19));
-    labyrinth->addWall(QVector3D(38, 6,  1), QVector3D(-19, 0,  19));
-    labyrinth->addWall(QVector3D( 1, 6, 38), QVector3D(-20, 0, -19));
+    labyrinth->addWall(QVector3D( 19, 3, 0.5), QVector3D(  0, 3, -19.5));
+    labyrinth->addWall(QVector3D(0.5, 3,  19), QVector3D( 19.5, 3, 0));
+    labyrinth->addWall(QVector3D( 19, 3, 0.5), QVector3D(  0, 3,  19.5));
+    labyrinth->addWall(QVector3D(0.5, 3,  19), QVector3D(-19.5, 3, 0));
 
     labyrinth->addIgnore(0, labyrinth->getWallColor(0));
     labyrinth->addIgnore(1, labyrinth->getWallColor(1));
@@ -282,12 +283,13 @@ void OGLWindow::initLabyrinth() {
     labyrinth->addIgnore(9, labyrinth->getWallColor(2));
 
 
-    labyrinth->addWall(QVector3D(33, 6, 1), QVector3D(-19, 0, -14));
-    labyrinth->addWall(QVector3D(1, 6, 27), QVector3D(14, 0, -14));
-    labyrinth->addWall(QVector3D(20, 6, 1), QVector3D(-6, 0, 12));
-    labyrinth->addWall(QVector3D(1, 6, 19), QVector3D(-6, 0, -7));
+    labyrinth->addWall(QVector3D(16.5, 3, 0.5), QVector3D(-2.5, 3, -13.5));
+    labyrinth->addWall(QVector3D(0.5, 3, 13.5), QVector3D(13.5, 3, -0.5));
+    labyrinth->addWall(QVector3D( 10, 3, 0.5), QVector3D(4, 3, 13.5));
+    labyrinth->addWall(QVector3D(0.5, 3, 9.5), QVector3D(-5.5, 3, 4.5));
 
     labyrinth->addBall(QVector3D(0, 3, 0));
+    labyrinth->addFinish(QVector3D(-17, 3, -17));
 }
 
 void OGLWindow::resizeGL(int w, int h) {
@@ -322,7 +324,8 @@ void OGLWindow::paintGL() {
     //---Search nearest box--
     program.bind();
     program.setUniformValue("rendTexture", 0);
-    for(int i = 0; i < 10; i++) {
+
+    for(int i = 0; i < qMin(labyrinth->getWallCount(), 10); i++) {
         // Set modelview-projection matrix
         program.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
         program.setUniformValue("color", labyrinth->getWallColor(i));
@@ -332,6 +335,7 @@ void OGLWindow::paintGL() {
     }
 
     glReadPixels(geometry().width() / 2, geometry().height() / 2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, centralPixel);
+
     ignoreColorId.setRgb(centralPixel[0], centralPixel[1], centralPixel[2], centralPixel[3]);
     program.setUniformValue("rendTexture", rendTexture);
     //--- ---
@@ -355,11 +359,21 @@ void OGLWindow::paintGL() {
         }
     }
 
+    // Ball
     // Set modelview matrix
     lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getBallMatrix());
     // Set modelview-projection matrix
     lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getBallMatrix());
     lightingProgram.setUniformValue("color", QColor(0, 0, 0));
+    // Draw cube geometry
+    boxDraw->draw(&lightingProgram);\
+
+    // Finish
+    // Set modelview matrix
+    lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getFinishMatrix());
+    // Set modelview-projection matrix
+    lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getFinishMatrix());
+    lightingProgram.setUniformValue("color", QColor(255, 255, 255));
     // Draw cube geometry
     boxDraw->draw(&lightingProgram);\
 
@@ -387,9 +401,13 @@ void OGLWindow::timerEvent(QTimerEvent *)
 
     QMatrix4x4 matrix;
     matrix.rotate(rotation);
-    labyrinth->setGravity((QVector3D(0, -10, 0) * matrix).normalized() * 10);
+    labyrinth->setGravity((QVector3D(0, -10, 0) * matrix).normalized() * 30);
     //Step simulation
     labyrinth->step();
+    if(labyrinth->checkFinish()) {
+        timer.stop();
+        emit endGame();
+    }
     // Request an update
     update();
 }

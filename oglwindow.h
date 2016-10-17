@@ -88,6 +88,7 @@ private:
 
 signals:
     void changeWindow();
+    void endGame();
 };
 
 #endif // OGLWindow_H
