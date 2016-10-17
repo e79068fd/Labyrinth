@@ -15,56 +15,23 @@ OGLWindow::OGLWindow() :
     centralPixel = new GLubyte[4]; //RGBA
 
     framesPerSecond = 0;
-    lastTime = 0;
+    lastTimeForFPS = 0;
+    lastTimeForEnd = 0;
 
-    //hardcode maze
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-1.0, -0.05, -1.0), QVector3D(1.0, 0.0, 1.0), QColor(0, 0, 255)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-1.0, 0.3, -1.0), QVector3D(1.0, 0.35, 1.0), QColor(255, 0, 0)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-1.0, 0.0, -1.0), QVector3D(-0.95, 0.3, -0.95), QColor(240, 0, 240)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(0.95, 0.0, -1.0), QVector3D(1, 0.3, -0.95), QColor(225, 0, 225)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(0.95, 0.0, 0.95), QVector3D(1.0, 0.3, 1), QColor(210, 0, 210)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-1, 0.0, 0.95), QVector3D(-0.95, 0.3, 1), QColor(195, 0, 195)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-0.95, 0.0, -1), QVector3D(0.95, 0.3, -0.95), QColor(0, 255, 0)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-    ignoreBoxs.back().push_back(boxs[2].getColor());
-    ignoreBoxs.back().push_back(boxs[3].getColor());
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(0.95, 0.0, -0.95), QVector3D(1, 0.3, 0.95), QColor(0, 200, 0)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-    ignoreBoxs.back().push_back(boxs[3].getColor());
-    ignoreBoxs.back().push_back(boxs[4].getColor());
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-0.95, 0.0, 0.95), QVector3D(0.95, 0.3, 1), QColor(0, 145, 0)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-    ignoreBoxs.back().push_back(boxs[4].getColor());
-    ignoreBoxs.back().push_back(boxs[5].getColor());
-    ignoreBoxs.push_back(QVector<QColor>());
-    boxs.push_back(Box(QVector3D(-1.0, 0.0, -0.95), QVector3D(-0.95, 0.3, 0.95), QColor(0, 90, 0)));
-    ignoreBoxs.back().push_back(boxs.back().getColor());
-    ignoreBoxs.back().push_back(boxs[5].getColor());
-    ignoreBoxs.back().push_back(boxs[2].getColor());
-
-    boxs.push_back(Box(QVector3D(-0.95, 0.0, -0.7), QVector3D(0.7, 0.3, -0.65), QColor(128, 128, 128)));
-    boxs.push_back(Box(QVector3D(0.65, 0.0, -0.65), QVector3D(0.7, 0.3, 0.7), QColor(128, 128, 128)));
-    boxs.push_back(Box(QVector3D(-0.35, 0.0, 0.65), QVector3D(0.65, 0.3, 0.7), QColor(128, 128, 128)));
-    boxs.push_back(Box(QVector3D(-0.35, 0.0 + 1e-3, 0.65), QVector3D(-0.3, 0.3 - 1e-3, -0.3), QColor(128, 128, 128)));
-
-    initLabyrinth();
+    colors.push_back(QColor(0, 0, 255));
+    colors.push_back(QColor(255, 0, 0));
+    colors.push_back(QColor(240, 0, 240));
+    colors.push_back(QColor(225, 0, 225));
+    colors.push_back(QColor(210, 0, 210));
+    colors.push_back(QColor(195, 0, 195));
+    colors.push_back(QColor(0, 255, 0));
+    colors.push_back(QColor(0, 200, 0));
+    colors.push_back(QColor(0, 145, 0));
+    colors.push_back(QColor(0, 90, 0));
+    colors.push_back(QColor(128, 128, 128));
+    colors.push_back(QColor(128, 128, 128));
+    colors.push_back(QColor(128, 128, 128));
+    colors.push_back(QColor(128, 128, 128));
 }
 
 OGLWindow::~OGLWindow()
@@ -173,7 +140,8 @@ void OGLWindow::initializeGL() {
     glClearColor(1.0f, 1.0f, 0.94f, 1);
 
     initShaders();
-    initTextures();
+    initTextures();    
+    initLabyrinth();
 
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
@@ -336,11 +304,10 @@ void OGLWindow::paintGL() {
 
     glReadPixels(geometry().width() / 2, geometry().height() / 2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, centralPixel);
 
-    ignoreColorId.setRgb(centralPixel[0], centralPixel[1], centralPixel[2], centralPixel[3]);
+    ignoreColorId.setRgb(centralPixel[0], centralPixel[1], centralPixel[2]);
     program.setUniformValue("rendTexture", rendTexture);
     //--- ---
 
-    //return;
     //---render box---
     lightingProgram.bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -352,7 +319,7 @@ void OGLWindow::paintGL() {
             // Set modelview-projection matrix
             lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
 
-            lightingProgram.setUniformValue("color", boxs[i].getColor());
+            lightingProgram.setUniformValue("color", colors[i]);
 
             // Draw cube geometry
             boxDraw->draw(&lightingProgram);\
@@ -399,14 +366,22 @@ void OGLWindow::timerEvent(QTimerEvent *)
         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;       
     }
 
-    QMatrix4x4 matrix;
-    matrix.rotate(rotation);
-    labyrinth->setGravity((QVector3D(0, -10, 0) * matrix).normalized() * 30);
-    //Step simulation
-    labyrinth->step();
+
+
     if(labyrinth->checkFinish()) {
-        timer.stop();
-        emit endGame();
+        int currentTime = QTime::currentTime().msecsSinceStartOfDay();
+        if(lastTimeForEnd == 0)
+            lastTimeForEnd = currentTime;
+        if(currentTime - lastTimeForEnd > 5000) {
+            emit endGame();
+            close();
+        }
+    } else {
+        QMatrix4x4 matrix;
+        matrix.rotate(rotation);
+        labyrinth->setGravity((QVector3D(0, -10, 0) * matrix).normalized() * 30);
+        //Step simulation
+        labyrinth->step();
     }
     // Request an update
     update();
@@ -420,11 +395,11 @@ void OGLWindow::fps() {
 
     //Теперь вычтем из текущего времени последнее запомненное время. Если результат больше единицы,
     //это значит, что секунда прошла и нужно вывести новый FPS.
-    if(currentTime - lastTime > 1000)
+    if(currentTime - lastTimeForFPS > 1000)
     {
         //Устанавливаем lastTime в текущее время. Теперь оно будет использоватся как предидущее время
         //для след. секунды.
-        lastTime = currentTime;
+        lastTimeForFPS = currentTime;
 
         // Установим FPS для вывода:
         qDebug() << "FPS: " << framesPerSecond;

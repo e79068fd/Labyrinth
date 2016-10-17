@@ -7,21 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->pushButton, SIGNAL(released()), this, SLOT(changeWindow_s()));
-    //OGLWindow* ogl = new OGLWindow();
-
-    //QWidget* container = QWidget::createWindowContainer(ogl);
-    //QGridLayout* layout = new QGridLayout();
-    //layout->addWidget(container);
-    //ui->centralwidget->setLayout(layout);
-    //QWidget* widget = new QWidget();
-    //widget->setStyleSheet("background:black");
-    //layout->addWidget(widget);
-    //QTimer* timer = new QTimer();
-    //timer->start(500);
-    //connect(timer, SIGNAL(timeout()), ogl, SLOT(update()));
-    //container->show();
-    //container->update();
+    connect(ui->buttonNewGame, SIGNAL(released()), this, SLOT(newGame()));
+    connect(ui->buttonPreferences, SIGNAL(released()), this, SLOT(preferences()));
 }
 
 MainWindow::~MainWindow()
@@ -29,7 +16,13 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::changeWindow_s() {
+void MainWindow::newGame() {
+    gameWindow = new OGLWindow();
+    connect(gameWindow, SIGNAL(endGame()), this, SLOT(show()));
     hide();
-    emit changeWindow();
+    gameWindow->show();
+}
+
+void MainWindow::preferences() {
+
 }

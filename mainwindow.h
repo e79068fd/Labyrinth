@@ -5,6 +5,7 @@
 #include <QGridLayout>
 #include <QTimer>
 
+#include "oglwindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,8 +22,11 @@ public:
 private:
     Ui::MainWindow *ui;
 
+    OGLWindow* gameWindow;
+
 public slots:
-    void changeWindow_s();
+    void newGame();
+    void preferences();
 
 signals:
     void changeWindow();

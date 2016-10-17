@@ -67,8 +67,7 @@ private:
     qreal angularSpeed;
     QQuaternion rotation;
 
-    QVector<Box> boxs;
-    QVector<QVector<QColor>> ignoreBoxs;
+    QVector<QColor> colors;
     GLubyte* centralPixel;
     QColor ignoreColorId;
 
@@ -78,13 +77,14 @@ private:
     qreal oldAtan;
 
     int framesPerSecond;
-    int lastTime;
+    int lastTimeForFPS;
     void fps();
 
     PlaneDrawObject* plane;
     BoxDrawObject* boxDraw;
     Labyrinth* labyrinth;
 
+    int lastTimeForEnd;
 
 signals:
     void changeWindow();
