@@ -158,6 +158,8 @@ void OGLWindow::initializeGL() {
     plane->setTexture(texcoords);
 
     boxDraw = new BoxDrawObject;
+
+    sphere = new SphereDrawObject;
 }
 
 void OGLWindow::initShaders() {
@@ -282,7 +284,7 @@ void OGLWindow::paintGL() {
     lightingProgram.setUniformValue("color", QColor(0, 0, 0));
 
     // Draw cube geometry
-    boxDraw->draw(&lightingProgram);
+    sphere->draw(&lightingProgram);
 
     // Finish
     // Set modelview matrix

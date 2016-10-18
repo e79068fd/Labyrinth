@@ -33,9 +33,9 @@ QVector3D defaultCoord[] = {
     QVector3D( 1.0f, -1.0f,  0.0f),
     QVector3D(-1.0f,  1.0f,  0.0f),
 
-    QVector3D( 1.0f, -1.0f,  0.0f),
+    QVector3D( 1.0f,  1.0f,  0.0f),
     QVector3D(-1.0f,  1.0f,  0.0f),
-    QVector3D( 1.0f,  1.0f,  0.0f)
+    QVector3D( 1.0f, -1.0f,  0.0f)
 };
 PlaneDrawObject::PlaneDrawObject() : PlaneDrawObject(defaultCoord) { }
 
@@ -77,7 +77,7 @@ void PlaneDrawObject::draw(QOpenGLShaderProgram *program) {
     }
 
     indexBuf.bind();
-    glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 }
 
 void PlaneDrawObject::setTexture(QVector2D* texcoords) {
@@ -94,54 +94,54 @@ BoxDrawObject::BoxDrawObject() : AbstractDrawObject() {
         QVector3D( 1.0f, -1.0f,  1.0f), // v1
         QVector3D(-1.0f,  1.0f,  1.0f), // v2
 
-        QVector3D( 1.0f, -1.0f,  1.0f), // v1
-        QVector3D(-1.0f,  1.0f,  1.0f), // v2
         QVector3D( 1.0f,  1.0f,  1.0f), // v3
+        QVector3D(-1.0f,  1.0f,  1.0f), // v2
+        QVector3D( 1.0f, -1.0f,  1.0f), // v1
 
         // Vertex data for face 1
         QVector3D( 1.0f, -1.0f,  1.0f), // v4
         QVector3D( 1.0f, -1.0f, -1.0f), // v5
         QVector3D( 1.0f,  1.0f,  1.0f), // v6
 
-        QVector3D( 1.0f, -1.0f, -1.0f), // v5
-        QVector3D( 1.0f,  1.0f,  1.0f), // v6
         QVector3D( 1.0f,  1.0f, -1.0f), // v7
+        QVector3D( 1.0f,  1.0f,  1.0f), // v6
+        QVector3D( 1.0f, -1.0f, -1.0f), // v5
 
         // Vertex data for face 2
         QVector3D( 1.0f, -1.0f, -1.0f), // v8
         QVector3D(-1.0f, -1.0f, -1.0f), // v9
         QVector3D( 1.0f,  1.0f, -1.0f), // v10
 
-        QVector3D(-1.0f, -1.0f, -1.0f), // v9
-        QVector3D( 1.0f,  1.0f, -1.0f), // v10
         QVector3D(-1.0f,  1.0f, -1.0f), // v11
+        QVector3D( 1.0f,  1.0f, -1.0f), // v10
+        QVector3D(-1.0f, -1.0f, -1.0f), // v9
 
         // Vertex data for face 3
         QVector3D(-1.0f, -1.0f, -1.0f), // v12
         QVector3D(-1.0f, -1.0f,  1.0f), // v13
         QVector3D(-1.0f,  1.0f, -1.0f), // v14
 
-        QVector3D(-1.0f, -1.0f,  1.0f), // v13
-        QVector3D(-1.0f,  1.0f, -1.0f), // v14
         QVector3D(-1.0f,  1.0f,  1.0f), // v15
+        QVector3D(-1.0f,  1.0f, -1.0f), // v14
+        QVector3D(-1.0f, -1.0f,  1.0f), // v13
 
         // Vertex data for face 4
         QVector3D(-1.0f, -1.0f, -1.0f), // v16
         QVector3D( 1.0f, -1.0f, -1.0f), // v17
         QVector3D(-1.0f, -1.0f,  1.0f), // v18
 
-        QVector3D( 1.0f, -1.0f, -1.0f), // v17
-        QVector3D(-1.0f, -1.0f,  1.0f), // v18
         QVector3D( 1.0f, -1.0f,  1.0f), // v19
+        QVector3D(-1.0f, -1.0f,  1.0f), // v18
+        QVector3D( 1.0f, -1.0f, -1.0f), // v17
 
         // Vertex data for face 5
         QVector3D(-1.0f,  1.0f,  1.0f), // v20
         QVector3D( 1.0f,  1.0f,  1.0f), // v21
         QVector3D(-1.0f,  1.0f, -1.0f), // v22
 
-        QVector3D( 1.0f,  1.0f,  1.0f), // v21
+        QVector3D( 1.0f,  1.0f, -1.0f), // v23
         QVector3D(-1.0f,  1.0f, -1.0f), // v22
-        QVector3D( 1.0f,  1.0f, -1.0f)  // v23
+        QVector3D( 1.0f,  1.0f,  1.0f)  // v21
     };
 
     for(int i = 0; i < 6; i++)
@@ -170,4 +170,95 @@ void BoxDrawObject::setTextured(bool value) {
 
 void BoxDrawObject::setMask(int m) {
     mask = m;
+}
+
+
+SphereDrawObject::SphereDrawObject(unsigned int num) {
+    num = qMin((unsigned int)5, num);
+    int cur = 0;
+    QVector<QVector3D> container[2];
+    container[0].push_back(QVector3D(0, 1, 0));
+    container[0].push_back(QVector3D(0, 0, 1));
+    container[0].push_back(QVector3D(1, 0, 0));
+
+    container[0].push_back(QVector3D(0, 1,  0));
+    container[0].push_back(QVector3D(1, 0,  0));
+    container[0].push_back(QVector3D(0, 0, -1));
+
+    container[0].push_back(QVector3D( 0, 1,  0));
+    container[0].push_back(QVector3D( 0, 0, -1));
+    container[0].push_back(QVector3D(-1, 0,  0));
+
+    container[0].push_back(QVector3D( 0, 1, 0));
+    container[0].push_back(QVector3D(-1, 0, 0));
+    container[0].push_back(QVector3D( 0, 0, 1));
+
+    container[0].push_back(QVector3D(0, -1, 0));
+    container[0].push_back(QVector3D(1,  0, 0));
+    container[0].push_back(QVector3D(0,  0, 1));
+
+    container[0].push_back(QVector3D(0, -1,  0));
+    container[0].push_back(QVector3D(0,  0, -1));
+    container[0].push_back(QVector3D(1,  0,  0));
+
+    container[0].push_back(QVector3D( 0, -1,  0));
+    container[0].push_back(QVector3D(-1,  0,  0));
+    container[0].push_back(QVector3D( 0,  0, -1));
+
+    container[0].push_back(QVector3D( 0, -1, 0));
+    container[0].push_back(QVector3D( 0,  0, 1));
+    container[0].push_back(QVector3D(-1,  0, 0));
+
+    numVertex = container[cur].size();
+    coordinateBuf.bind();
+    coordinateBuf.allocate(container[cur].data(), numVertex * sizeof(QVector3D));
+
+    // Allocate normal
+    QVector<QVector3D> normals;
+    for(int i = 0; i < numVertex; i += 3) {
+        QVector3D triangleNormal = QVector3D::normal(container[cur][i], container[cur][i + 1], container[cur][i + 2]);
+        normals.push_back(triangleNormal);
+        normals.push_back(triangleNormal);
+        normals.push_back(triangleNormal);
+    }
+
+    normalBuf.bind();
+    normalBuf.allocate(normals.data(), numVertex * sizeof(QVector3D));
+
+    QVector<GLushort> indeces;
+    for(int i = 0; i < numVertex; i++)
+        indeces.push_back(i);
+
+    indexBuf.bind();
+    indexBuf.allocate(indeces.data(), numVertex * sizeof(GLushort));
+}
+
+SphereDrawObject::~SphereDrawObject() {
+
+}
+
+void SphereDrawObject::draw(QOpenGLShaderProgram *program) {
+    coordinateBuf.bind();
+    int vertexLocation = program->attributeLocation("a_position");
+    program->enableAttributeArray(vertexLocation);
+    program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    normalBuf.bind();
+    int normalLocation = program->attributeLocation("a_normal");
+    program->enableAttributeArray(normalLocation);
+    program->setAttributeBuffer(normalLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    if(false && isTextured) { //TODO add textrured
+        texcoordBuf.bind();
+        int texcoordLocation = program->attributeLocation("a_texcoord");
+        program->enableAttributeArray(texcoordLocation);
+        program->setAttributeBuffer(texcoordLocation, GL_FLOAT, 0, 2, sizeof(QVector2D));
+    }
+
+    indexBuf.bind();
+    glDrawElements(GL_TRIANGLES, numVertex, GL_UNSIGNED_SHORT, 0);
+}
+
+void SphereDrawObject::setTexture(QVector2D* texcoords) {
+    //TODO add textrured
 }

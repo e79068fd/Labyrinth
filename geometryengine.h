@@ -50,4 +50,14 @@ private:
     int mask;
 };
 
+class SphereDrawObject: public AbstractDrawObject {
+public:
+    SphereDrawObject(unsigned int num = 0);
+    ~SphereDrawObject();
+    void draw(QOpenGLShaderProgram *program);
+    void setTexture(QVector2D* texcoords);
+private:
+    int numVertex;
+};
+
 #endif // GEOMETRYENGINE_H
