@@ -159,7 +159,8 @@ void OGLWindow::initializeGL() {
 
     boxDraw = new BoxDrawObject;
 
-    sphere = new SphereDrawObject;
+    icosahedron = new SphereDrawObject(1);
+    sphere = new SphereDrawObject(2);
 }
 
 void OGLWindow::initShaders() {
@@ -267,7 +268,7 @@ void OGLWindow::paintGL() {
 
     matrix.translate(0.0, 0.0, -5.0);
     matrix.rotate(rotation);
-    matrix.scale(0.05);
+    matrix.scale(0.075);
 
     QMatrix4x4 normal_matrix;
     normal_matrix.rotate(rotation);
@@ -281,7 +282,7 @@ void OGLWindow::paintGL() {
     // Set modelview-projection matrix
     lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getBallMatrix());
 
-    lightingProgram.setUniformValue("color", QColor(0, 0, 0));
+    lightingProgram.setUniformValue("color", QColor(192, 192, 192));
 
     // Draw cube geometry
     sphere->draw(&lightingProgram);
@@ -296,7 +297,7 @@ void OGLWindow::paintGL() {
     lightingProgram.setUniformValue("color", QColor(255, 255, 255));
 
     // Draw cube geometry
-    boxDraw->draw(&lightingProgram);
+    icosahedron->draw(&lightingProgram);
 
     lightingProgram.setUniformValue("color", QColor(50, 205, 50, 200));
     for(int i = 0; i < labyrinth->getWallCount(); i++) {
@@ -343,7 +344,7 @@ void OGLWindow::timerEvent(QTimerEvent *)
         if(read)
             gravity = QVector3D(read->x(), read->y(), read->z()) * -1;
         else
-            gravity = QVector3D(0, -10, 0);
+            gravity = QVector3D(0, 0, -10);
         labyrinth->setGravity((gravity * matrix).normalized() * 30);
         //Step simulation
         labyrinth->step();

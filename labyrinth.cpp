@@ -99,6 +99,7 @@ int Labyrinth::getWallCount() {
 
 QMatrix4x4 Labyrinth::getBallMatrix(int index) {
     btTransform transform;
+    transform.getRotation();
     ballRigidBody->getMotionState()->getWorldTransform(transform);
     float oglArray[16];
     transform.getOpenGLMatrix(oglArray);

@@ -78,6 +78,7 @@ private:
     PlaneDrawObject* plane;
     BoxDrawObject* boxDraw;
     SphereDrawObject* sphere;
+    SphereDrawObject* icosahedron;
     Labyrinth* labyrinth;
 
     int lastTimeForEnd;

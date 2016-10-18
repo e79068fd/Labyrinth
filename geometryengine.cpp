@@ -209,7 +209,45 @@ SphereDrawObject::SphereDrawObject(unsigned int num) {
     container[0].push_back(QVector3D( 0,  0, 1));
     container[0].push_back(QVector3D(-1,  0, 0));
 
+    QVector3D v[6];
+    int oldCur, n;
+    while(num--) {
+        oldCur = cur;
+        cur = (cur + 1) % 2;
+        n = container[oldCur].size() / 3;
+        for(int triangle = 0; triangle < n; triangle++) {
+            for(int i = 2; i >= 0; i--) {
+                v[i] = container[oldCur].last();
+                container[oldCur].pop_back();
+            }
+            for(int i = 3; i < 6; i++) {
+                v[i] = (v[(i - 3) % 3] + v[(i - 2) % 3]) / 2;
+            }
+            container[cur].push_back(v[0]);
+            container[cur].push_back(v[3]);
+            container[cur].push_back(v[5]);
+
+            container[cur].push_back(v[3]);
+            container[cur].push_back(v[1]);
+            container[cur].push_back(v[4]);
+
+            container[cur].push_back(v[4]);
+            container[cur].push_back(v[5]);
+            container[cur].push_back(v[3]);
+
+            container[cur].push_back(v[5]);
+            container[cur].push_back(v[4]);
+            container[cur].push_back(v[2]);
+        }
+    }
+
     numVertex = container[cur].size();
+
+    //normalized vertex
+    for(int i = 0; i < numVertex; i++) {
+        container[cur][i] = container[cur][i].normalized();
+    }
+
     coordinateBuf.bind();
     coordinateBuf.allocate(container[cur].data(), numVertex * sizeof(QVector3D));
 
