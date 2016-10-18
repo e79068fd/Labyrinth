@@ -11,7 +11,7 @@ varying vec3 pos;
 
 void main()
 {
-    vec3 light_position = vec3(0.0, 0.0, -1.0);
+    vec3 light_position = vec3(0.0, 0.0, 0.0);
     vec3 light_intensities = vec3(0.95, 0.95, 0.95);
     float light_attenuation = 0.6;
     float ambientCoefficient = 0.85;

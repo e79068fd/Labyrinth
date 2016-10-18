@@ -4,6 +4,8 @@
 #include "geometryengine.h"
 #include "box.h"
 #include "labyrinth.h"
+#include <QAccelerometer>
+#include <QAccelerometerReading>
 
 #include <QWindow>
 #include <QOpenGLWindow>
@@ -86,6 +88,8 @@ private:
     Labyrinth* labyrinth;
 
     int lastTimeForEnd;
+
+    QAccelerometer accelerometer;
 
 signals:
     void changeWindow();

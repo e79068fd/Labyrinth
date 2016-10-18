@@ -43,6 +43,8 @@ void OGLWindow::startGame() {
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(1000/60, this);
+
+    accelerometer.start();
 }
 
 OGLWindow::~OGLWindow()
@@ -93,6 +95,7 @@ void OGLWindow::updateMoveEvent(const QPointF& first, const QPointF& last, int t
             oldAtan = atan_;
             break;
     }
+    if(type > 2) return;
     // Rotation axis is perpendicular to the mouse position difference
     // vector
     QVector3D n = QVector3D(x, y, z).normalized();
@@ -397,13 +400,20 @@ void OGLWindow::timerEvent(QTimerEvent *)
             lastTimeForEnd = currentTime;
         if(currentTime - lastTimeForEnd > 5000) {
             timer.stop();
+            accelerometer.stop();
             emit endGame();
             close();
         }
     } else {
         QMatrix4x4 matrix;
         matrix.rotate(rotation);
-        labyrinth->setGravity((QVector3D(0, -10, 0) * matrix).normalized() * 30);
+        QAccelerometerReading* read = accelerometer.reading();
+        QVector3D gravity;
+        if(read)
+            gravity = QVector3D(read->x(), read->y(), read->z()) * -1;
+        else
+            gravity = QVector3D(0, 0, -10);
+        labyrinth->setGravity((gravity * matrix).normalized() * 30);
         //Step simulation
         labyrinth->step();
     }
