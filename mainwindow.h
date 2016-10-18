@@ -27,6 +27,7 @@ private:
 public slots:
     void newGame();
     void preferences();
+    void endGame();
 
 signals:
     void changeWindow();

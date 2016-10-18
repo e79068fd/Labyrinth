@@ -16,7 +16,6 @@ OGLWindow::OGLWindow() :
 
     framesPerSecond = 0;
     lastTimeForFPS = 0;
-    lastTimeForEnd = 0;
 
     colors.push_back(QColor(0, 0, 255));
     colors.push_back(QColor(255, 0, 0));
@@ -32,6 +31,18 @@ OGLWindow::OGLWindow() :
     colors.push_back(QColor(128, 128, 128));
     colors.push_back(QColor(128, 128, 128));
     colors.push_back(QColor(128, 128, 128));
+}
+
+void OGLWindow::startGame() {
+    initLabyrinth();
+
+    lastTimeForEnd = 0;
+    angularSpeed = 0;
+    rotationAxis = QVector3D();
+    rotation = QQuaternion();
+
+    // Use QBasicTimer because its faster than QTimer
+    timer.start(1000/60, this);
 }
 
 OGLWindow::~OGLWindow()
@@ -140,8 +151,7 @@ void OGLWindow::initializeGL() {
     glClearColor(1.0f, 1.0f, 0.94f, 1);
 
     initShaders();
-    initTextures();    
-    initLabyrinth();
+    initTextures();
 
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
@@ -150,7 +160,7 @@ void OGLWindow::initializeGL() {
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Enable back face culling
     glEnable(GL_CULL_FACE);
-    glEnable(GL_FRONT_AND_BACK);
+    //glEnable(GL_FRONT_AND_BACK);
 
     geometries = new GeometryEngine;
 
@@ -164,9 +174,6 @@ void OGLWindow::initializeGL() {
     plane->setTexture(texcoords);
 
     boxDraw = new BoxDrawObject;
-
-    // Use QBasicTimer because its faster than QTimer
-    timer.start(1000/60, this);
 }
 
 void OGLWindow::initShaders() {
@@ -211,6 +218,8 @@ void OGLWindow::initTextures() {
 }
 
 void OGLWindow::initLabyrinth() {
+    if(labyrinth != 0)
+        delete labyrinth;
     labyrinth = new Labyrinth();
 
     labyrinth->addWall(QVector3D(20, 0.5, 20), QVector3D(0, -0.5, 0));
@@ -286,6 +295,8 @@ void OGLWindow::resizeGL(int w, int h) {
 }
 
 void OGLWindow::paintGL() {
+    if(labyrinth == 0)
+        return;
     fps();
 
     // Clear color and depth buffer

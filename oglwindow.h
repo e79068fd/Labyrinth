@@ -35,6 +35,7 @@ class OGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 public:
     explicit OGLWindow();
     ~OGLWindow();
+    void startGame();
 
 protected:
     void initializeGL();

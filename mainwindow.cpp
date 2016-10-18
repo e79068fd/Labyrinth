@@ -9,6 +9,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->buttonNewGame, SIGNAL(released()), this, SLOT(newGame()));
     connect(ui->buttonPreferences, SIGNAL(released()), this, SLOT(preferences()));
+
+    gameWindow = new OGLWindow();
+    connect(gameWindow, SIGNAL(endGame()), this, SLOT(endGame()));
 }
 
 MainWindow::~MainWindow()
@@ -16,13 +19,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::newGame() {
-    gameWindow = new OGLWindow();
-    connect(gameWindow, SIGNAL(endGame()), this, SLOT(show()));
+void MainWindow::newGame() {   
     hide();
+    gameWindow->startGame();
     gameWindow->show();
 }
 
 void MainWindow::preferences() {
 
+}
+
+void MainWindow::endGame() {
+    show();
 }
