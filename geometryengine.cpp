@@ -32,6 +32,7 @@ QVector3D defaultCoord[] = {
     QVector3D(-1.0f, -1.0f,  0.0f),
     QVector3D( 1.0f, -1.0f,  0.0f),
     QVector3D(-1.0f,  1.0f,  0.0f),
+
     QVector3D( 1.0f, -1.0f,  0.0f),
     QVector3D(-1.0f,  1.0f,  0.0f),
     QVector3D( 1.0f,  1.0f,  0.0f)
@@ -42,12 +43,13 @@ PlaneDrawObject::PlaneDrawObject(QVector3D coordinates[]) : AbstractDrawObject()
     coordinateBuf.bind();
     coordinateBuf.allocate(coordinates, 6 * sizeof(QVector3D));
 
-    //QVector3D first = QVector3D::normal(coordinates[0], coordinates[1], coordinates[2]);
+    QVector3D normalForPlane = QVector3D::normal(coordinates[0], coordinates[1], coordinates[2]);
     //QVector3D second = QVector3D::normal(coordinates[3], coordinates[4], coordinates[5]);
     //QVector3D normals[] = {
     //    first, first, first,
     //    second, second, second
     //};
+    /*
     QVector3D normals[] = {
         QVector3D::normal(coordinates[0], coordinates[1]),
         QVector3D::normal(coordinates[1], coordinates[2]),
@@ -57,6 +59,8 @@ PlaneDrawObject::PlaneDrawObject(QVector3D coordinates[]) : AbstractDrawObject()
         QVector3D::normal(coordinates[4], coordinates[5]),
         QVector3D::normal(coordinates[5], coordinates[3]),
     };
+    */
+    QVector3D normals[] = {normalForPlane, normalForPlane, normalForPlane, normalForPlane, normalForPlane, normalForPlane};
     normalBuf.bind();
     normalBuf.allocate(normals, 6 * sizeof(QVector3D));
 
@@ -104,41 +108,59 @@ BoxDrawObject::BoxDrawObject() : AbstractDrawObject() {
         QVector3D(-1.0f, -1.0f,  1.0f), // v0
         QVector3D( 1.0f, -1.0f,  1.0f), // v1
         QVector3D(-1.0f,  1.0f,  1.0f), // v2
+
         QVector3D( 1.0f,  1.0f,  1.0f), // v3
+        QVector3D(-1.0f,  1.0f,  1.0f), // v2
+        QVector3D( 1.0f, -1.0f,  1.0f), // v1
 
         // Vertex data for face 1
         QVector3D( 1.0f, -1.0f,  1.0f), // v4
         QVector3D( 1.0f, -1.0f, -1.0f), // v5
         QVector3D( 1.0f,  1.0f,  1.0f), // v6
+
         QVector3D( 1.0f,  1.0f, -1.0f), // v7
+        QVector3D( 1.0f,  1.0f,  1.0f), // v6
+        QVector3D( 1.0f, -1.0f, -1.0f), // v5
 
         // Vertex data for face 2
         QVector3D( 1.0f, -1.0f, -1.0f), // v8
         QVector3D(-1.0f, -1.0f, -1.0f), // v9
         QVector3D( 1.0f,  1.0f, -1.0f), // v10
+
         QVector3D(-1.0f,  1.0f, -1.0f), // v11
+        QVector3D( 1.0f,  1.0f, -1.0f), // v10
+        QVector3D(-1.0f, -1.0f, -1.0f), // v9
 
         // Vertex data for face 3
         QVector3D(-1.0f, -1.0f, -1.0f), // v12
         QVector3D(-1.0f, -1.0f,  1.0f), // v13
         QVector3D(-1.0f,  1.0f, -1.0f), // v14
+
         QVector3D(-1.0f,  1.0f,  1.0f), // v15
+        QVector3D(-1.0f,  1.0f, -1.0f), // v14
+        QVector3D(-1.0f, -1.0f,  1.0f), // v13
 
         // Vertex data for face 4
         QVector3D(-1.0f, -1.0f, -1.0f), // v16
         QVector3D( 1.0f, -1.0f, -1.0f), // v17
         QVector3D(-1.0f, -1.0f,  1.0f), // v18
+
         QVector3D( 1.0f, -1.0f,  1.0f), // v19
+        QVector3D(-1.0f, -1.0f,  1.0f), // v18
+        QVector3D( 1.0f, -1.0f, -1.0f), // v17
 
         // Vertex data for face 5
         QVector3D(-1.0f,  1.0f,  1.0f), // v20
         QVector3D( 1.0f,  1.0f,  1.0f), // v21
         QVector3D(-1.0f,  1.0f, -1.0f), // v22
-        QVector3D( 1.0f,  1.0f, -1.0f)  // v23
+
+        QVector3D( 1.0f,  1.0f, -1.0f), // v23
+        QVector3D(-1.0f,  1.0f, -1.0f), // v22
+        QVector3D( 1.0f,  1.0f,  1.0f)  // v21
     };
 
     for(int i = 0; i < 6; i++)
-        faces[i] = new PlaneDrawObject(coordinates + i * 4);
+        faces[i] = new PlaneDrawObject(coordinates + i * 6);
 }
 
 BoxDrawObject::~BoxDrawObject() { }

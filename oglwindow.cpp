@@ -224,6 +224,7 @@ void OGLWindow::initLabyrinth() {
     if(labyrinth != 0)
         delete labyrinth;
     labyrinth = new Labyrinth();
+    //labyrinth->addWall(QVector3D(5, 5, 5) , QVector3D(0,0,0));
 
     labyrinth->addWall(QVector3D(20, 0.5, 20), QVector3D(0, -0.5, 0));
     labyrinth->addWall(QVector3D(20, 0.5, 20), QVector3D(0,  6.5, 0));
@@ -334,6 +335,9 @@ void OGLWindow::paintGL() {
     program.setUniformValue("rendTexture", rendTexture);
     //--- ---
 */
+
+    QMatrix4x4 normal_matrix;
+    normal_matrix.rotate(rotation);
     ignoreColorId.setRgb(0, 0, 0);
     //---render box---
     lightingProgram.bind();
@@ -341,6 +345,7 @@ void OGLWindow::paintGL() {
     //lightingProgram.setUniformValue("color", QColor(50, 205, 50));
     for(int i = 0; i < labyrinth->getWallCount(); i++) {
         if(!labyrinth->isIgnore(i, ignoreColorId)) {
+            lightingProgram.setUniformValue("normal_matrix", normal_matrix);
             // Set modelview matrix
             lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getWallMatrix(i));
             // Set modelview-projection matrix

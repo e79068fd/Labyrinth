@@ -11,12 +11,12 @@ varying vec3 pos;
 
 void main()
 {
-    vec3 light_position = vec3(0.0, 0.0, 0.0);
+    vec3 light_position = vec3(0.0, 0.0, 1.0);
     vec3 light_intensities = vec3(0.95, 0.95, 0.95);
-    float light_attenuation = 0.6;
-    float ambientCoefficient = 0.85;
+    float light_attenuation = 0.5;
+    float ambientCoefficient = 0.15;
 
-    float materialShininess = 64.0;
+    float materialShininess = 32.0;
     vec3 materialSpecularColor = vec3(0.9, 0.9, 0.9);
 
     vec3 surfaceToLight = normalize(light_position - pos);
@@ -28,6 +28,10 @@ void main()
     //diffuse
     float diffuseCoefficient = max(0.0, dot(normal, surfaceToLight));
     vec3 diffuse = diffuseCoefficient * color.rgb * light_intensities;
+    //if(normal == vec3(0, 0, 1)) {
+    //    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    //    return;
+    //}
 
     //specular
     float specularCoefficient = pow(max(0.0, dot(surfaceToCamera, reflect(-surfaceToLight, normal))), materialShininess);
