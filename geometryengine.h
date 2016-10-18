@@ -35,15 +35,19 @@ public:
     void setTexture(QVector2D* texcoords);
 };
 
+
 class BoxDrawObject: public AbstractDrawObject {
 public:
+    enum BoxFaceMask {Top = 32, Bottom = 16, Left = 8, Right = 2, Front = 1, Back = 4};
     BoxDrawObject();
     ~BoxDrawObject();
     void draw(QOpenGLShaderProgram *program);
     void setTexture(QVector2D *texcoords);
     void setTextured(bool value);
+    void setMask(int m);
 private:
     PlaneDrawObject** faces;
+    int mask;
 };
 
 class GeometryEngine : protected QOpenGLFunctions

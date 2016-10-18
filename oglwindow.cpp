@@ -226,6 +226,17 @@ void OGLWindow::initLabyrinth() {
     labyrinth->addWall(QVector3D( 19, 3, 0.5), QVector3D(  0, 3,  19.5));
     labyrinth->addWall(QVector3D(0.5, 3,  19), QVector3D(-19.5, 3, 0));
 
+    labyrinth->addWallMask(0, BoxDrawObject::Bottom);
+    labyrinth->addWallMask(1, BoxDrawObject::Top);
+    //labyrinth->addWallMask(2, BoxDrawObject::Front | BoxDrawObject::Right);
+    //labyrinth->addWallMask(3, BoxDrawObject::Front | BoxDrawObject::Left);
+    //labyrinth->addWallMask(4, BoxDrawObject::Back | BoxDrawObject::Left);
+    //labyrinth->addWallMask(5, BoxDrawObject::Back | BoxDrawObject::Right);
+    labyrinth->addWallMask(6, BoxDrawObject::Back | BoxDrawObject::Left| BoxDrawObject::Right);
+    labyrinth->addWallMask(7, BoxDrawObject::Right | BoxDrawObject::Front | BoxDrawObject::Back);
+    labyrinth->addWallMask(8, BoxDrawObject::Front | BoxDrawObject::Left| BoxDrawObject::Right);
+    labyrinth->addWallMask(9, BoxDrawObject::Left | BoxDrawObject::Front | BoxDrawObject::Back);
+
     labyrinth->addIgnore(0, labyrinth->getWallColor(0));
     labyrinth->addIgnore(1, labyrinth->getWallColor(1));
 
@@ -289,6 +300,7 @@ void OGLWindow::paintGL() {
     matrix.rotate(rotation);
     matrix.scale(0.05);
 
+    /*
     //---Search nearest box--
     program.bind();
     program.setUniformValue("rendTexture", 0);
@@ -307,7 +319,8 @@ void OGLWindow::paintGL() {
     ignoreColorId.setRgb(centralPixel[0], centralPixel[1], centralPixel[2]);
     program.setUniformValue("rendTexture", rendTexture);
     //--- ---
-
+*/
+    ignoreColorId.setRgb(0, 0, 0);
     //---render box---
     lightingProgram.bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -322,6 +335,7 @@ void OGLWindow::paintGL() {
             lightingProgram.setUniformValue("color", colors[i]);
 
             // Draw cube geometry
+            boxDraw->setMask(labyrinth->getWallMask(i));
             boxDraw->draw(&lightingProgram);\
         }
     }
@@ -366,13 +380,12 @@ void OGLWindow::timerEvent(QTimerEvent *)
         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;       
     }
 
-
-
     if(labyrinth->checkFinish()) {
         int currentTime = QTime::currentTime().msecsSinceStartOfDay();
         if(lastTimeForEnd == 0)
             lastTimeForEnd = currentTime;
         if(currentTime - lastTimeForEnd > 5000) {
+            timer.stop();
             emit endGame();
             close();
         }

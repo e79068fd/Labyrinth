@@ -18,11 +18,13 @@ public:
     void addIgnore(int index, QColor color);
     void addBall(const QVector3D& translate);
     void addFinish(const QVector3D& translate);
+    void addWallMask(int index, int mask);
 
     const QMatrix4x4& getWallMatrix(int index);
     const QColor& getWallColor(int index);
     const QVector<QColor>& getIgnore(int index);
     int getWallCount();
+    int getWallMask(int index);
 
     QMatrix4x4 getBallMatrix(int index = 0);
     const QMatrix4x4& getFinishMatrix(int index = 0);
@@ -53,6 +55,8 @@ private:
     btRigidBody* finishRigidBody;
     QMatrix4x4 finishMatrix;
     bool isFinish;
+
+    QMap<int, int> wallMask;
 };
 
 #endif // LABYRINTH_H

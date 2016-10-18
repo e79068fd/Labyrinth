@@ -92,6 +92,10 @@ void Labyrinth::addFinish(const QVector3D &translate) {
     dynamicsWorld->addRigidBody(finishRigidBody);
 }
 
+void Labyrinth::addWallMask(int index, int mask) {
+    wallMask.insert(index, mask);
+}
+
 const QMatrix4x4& Labyrinth::getWallMatrix(int index) {
     return wallMatrix[index];
 }
@@ -132,6 +136,12 @@ QMatrix4x4 Labyrinth::getBallMatrix(int index) {
 
 const QMatrix4x4& Labyrinth::getFinishMatrix(int index) {
     return finishMatrix;
+}
+
+int Labyrinth::getWallMask(int index) {
+    if(wallMask.contains(index))
+        return wallMask[index];
+    return 0;
 }
 
 void Labyrinth::setGravity(const QVector3D& v) {

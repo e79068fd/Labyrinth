@@ -97,6 +97,7 @@ void PlaneDrawObject::setTexture(QVector2D* texcoords) {
 }
 
 BoxDrawObject::BoxDrawObject() : AbstractDrawObject() {
+    mask = 0;
     faces = new PlaneDrawObject*[6];
     QVector3D coordinates[] = {
         // Vertex data for face 0
@@ -144,7 +145,9 @@ BoxDrawObject::~BoxDrawObject() { }
 
 void BoxDrawObject::draw(QOpenGLShaderProgram *program) {
     for(int i = 0; i < 6; i++)
-        faces[i]->draw(program);
+        if(!((1 << i) & mask))
+            faces[i]->draw(program);
+    mask = 0;
 }
 
 void BoxDrawObject::setTexture(QVector2D* texcoords) {
@@ -156,6 +159,10 @@ void BoxDrawObject::setTextured(bool value) {
     for(int i = 0; i < 6; i++)
         faces[i]->setTextured(value);
     isTextured = value;
+}
+
+void BoxDrawObject::setMask(int m) {
+    mask = m;
 }
 
 struct VertexData
