@@ -25,6 +25,7 @@ public:
 
     QMatrix4x4 getBallMatrix(int index = 0);
     const QMatrix4x4& getFinishMatrix(int index = 0);
+    QQuaternion getBallRotation(int index = 0);
 
     void setGravity(const QVector3D& v);
 

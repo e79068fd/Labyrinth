@@ -160,7 +160,7 @@ void OGLWindow::initializeGL() {
     boxDraw = new BoxDrawObject;
 
     icosahedron = new SphereDrawObject(1);
-    sphere = new SphereDrawObject(2);
+    sphere = new SphereDrawObject(3);
 }
 
 void OGLWindow::initShaders() {
@@ -270,13 +270,17 @@ void OGLWindow::paintGL() {
     matrix.rotate(rotation);
     matrix.scale(0.075);
 
-    QMatrix4x4 normal_matrix;
-    normal_matrix.rotate(rotation);
-    lightingProgram.setUniformValue("normal_matrix", normal_matrix);
+    QMatrix4x4 normalMatrix;
+    normalMatrix.rotate(rotation);
+    lightingProgram.setUniformValue("normal_matrix", normalMatrix);
     //---render---
 
     // Ball
     // Set modelview matrix
+    QMatrix4x4 normalMatrixForBall;
+    normalMatrixForBall.rotate(rotation);
+    normalMatrixForBall.rotate(labyrinth->getBallRotation());
+    lightingProgram.setUniformValue("normal_matrix", normalMatrixForBall);
     lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getBallMatrix());
 
     // Set modelview-projection matrix
@@ -287,6 +291,7 @@ void OGLWindow::paintGL() {
     // Draw cube geometry
     sphere->draw(&lightingProgram);
 
+    lightingProgram.setUniformValue("normal_matrix", normalMatrix);
     // Finish
     // Set modelview matrix
     lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getFinishMatrix());
