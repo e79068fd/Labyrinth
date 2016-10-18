@@ -28,10 +28,6 @@ void main()
     //diffuse
     float diffuseCoefficient = max(0.0, dot(normal, surfaceToLight));
     vec3 diffuse = diffuseCoefficient * color.rgb * light_intensities;
-    //if(normal == vec3(0, 0, 1)) {
-    //    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    //    return;
-    //}
 
     //specular
     float specularCoefficient = pow(max(0.0, dot(surfaceToCamera, reflect(-surfaceToLight, normal))), materialShininess);

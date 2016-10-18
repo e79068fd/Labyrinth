@@ -159,8 +159,9 @@ void OGLWindow::initializeGL() {
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
 
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Enable back face culling
     glEnable(GL_CULL_FACE);
     //glEnable(GL_FRONT_AND_BACK);
@@ -239,16 +240,16 @@ void OGLWindow::initLabyrinth() {
     labyrinth->addWall(QVector3D( 19, 3, 0.5), QVector3D(  0, 3,  19.5));
     labyrinth->addWall(QVector3D(0.5, 3,  19), QVector3D(-19.5, 3, 0));
 
-    labyrinth->addWallMask(0, BoxDrawObject::Bottom);
-    labyrinth->addWallMask(1, BoxDrawObject::Top);
+    labyrinth->addWallMask(0, 127 ^ BoxDrawObject::Top);
+    labyrinth->addWallMask(1, 127 ^ BoxDrawObject::Bottom);
     //labyrinth->addWallMask(2, BoxDrawObject::Front | BoxDrawObject::Right);
     //labyrinth->addWallMask(3, BoxDrawObject::Front | BoxDrawObject::Left);
     //labyrinth->addWallMask(4, BoxDrawObject::Back | BoxDrawObject::Left);
     //labyrinth->addWallMask(5, BoxDrawObject::Back | BoxDrawObject::Right);
-    labyrinth->addWallMask(6, BoxDrawObject::Back | BoxDrawObject::Left| BoxDrawObject::Right);
-    labyrinth->addWallMask(7, BoxDrawObject::Right | BoxDrawObject::Front | BoxDrawObject::Back);
-    labyrinth->addWallMask(8, BoxDrawObject::Front | BoxDrawObject::Left| BoxDrawObject::Right);
-    labyrinth->addWallMask(9, BoxDrawObject::Left | BoxDrawObject::Front | BoxDrawObject::Back);
+    labyrinth->addWallMask(6, BoxDrawObject::Back);
+    labyrinth->addWallMask(7, BoxDrawObject::Right);
+    labyrinth->addWallMask(8, BoxDrawObject::Front);
+    labyrinth->addWallMask(9, BoxDrawObject::Left);
 
     labyrinth->addIgnore(0, labyrinth->getWallColor(0));
     labyrinth->addIgnore(1, labyrinth->getWallColor(1));
@@ -342,22 +343,7 @@ void OGLWindow::paintGL() {
     //---render box---
     lightingProgram.bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //lightingProgram.setUniformValue("color", QColor(50, 205, 50));
-    for(int i = 0; i < labyrinth->getWallCount(); i++) {
-        if(!labyrinth->isIgnore(i, ignoreColorId)) {
-            lightingProgram.setUniformValue("normal_matrix", normal_matrix);
-            // Set modelview matrix
-            lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getWallMatrix(i));
-            // Set modelview-projection matrix
-            lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
 
-            lightingProgram.setUniformValue("color", colors[i]);
-
-            // Draw cube geometry
-            boxDraw->setMask(labyrinth->getWallMask(i));
-            boxDraw->draw(&lightingProgram);\
-        }
-    }
 
     // Ball
     // Set modelview matrix
@@ -376,6 +362,24 @@ void OGLWindow::paintGL() {
     lightingProgram.setUniformValue("color", QColor(255, 255, 255));
     // Draw cube geometry
     boxDraw->draw(&lightingProgram);\
+
+    lightingProgram.setUniformValue("color", QColor(50, 205, 50, 200));
+    for(int i = 0; i < labyrinth->getWallCount(); i++) {
+        if(!labyrinth->isIgnore(i, ignoreColorId)) {
+            lightingProgram.setUniformValue("normal_matrix", normal_matrix);
+            // Set modelview matrix
+            lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getWallMatrix(i));
+            // Set modelview-projection matrix
+            lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
+
+            //lightingProgram.setUniformValue("color", colors[i]);
+
+            // Draw cube geometry
+            boxDraw->setMask(labyrinth->getWallMask(i));
+            boxDraw->draw(&lightingProgram);\
+        }
+    }
+
 
     //--- ---
     //program.setUniformValue("rendTexture", 1);
@@ -417,7 +421,7 @@ void OGLWindow::timerEvent(QTimerEvent *)
         if(read)
             gravity = QVector3D(read->x(), read->y(), read->z()) * -1;
         else
-            gravity = QVector3D(0, 0, -10);
+            gravity = QVector3D(0, -10, 0);
         labyrinth->setGravity((gravity * matrix).normalized() * 30);
         //Step simulation
         labyrinth->step();
