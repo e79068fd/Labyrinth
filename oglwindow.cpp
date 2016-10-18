@@ -1,7 +1,6 @@
 #include "oglwindow.h"
 
 OGLWindow::OGLWindow() :
-    geometries(0),
     texture(0),
     angularSpeed(0),
     labyrinth(0)
@@ -12,25 +11,9 @@ OGLWindow::OGLWindow() :
     setFormat(format);
 
     rendTexture = 0;
-    centralPixel = new GLubyte[4]; //RGBA
 
     framesPerSecond = 0;
     lastTimeForFPS = 0;
-
-    colors.push_back(QColor(0, 0, 255));
-    colors.push_back(QColor(255, 0, 0));
-    colors.push_back(QColor(240, 0, 240));
-    colors.push_back(QColor(225, 0, 225));
-    colors.push_back(QColor(210, 0, 210));
-    colors.push_back(QColor(195, 0, 195));
-    colors.push_back(QColor(0, 255, 0));
-    colors.push_back(QColor(0, 200, 0));
-    colors.push_back(QColor(0, 145, 0));
-    colors.push_back(QColor(0, 90, 0));
-    colors.push_back(QColor(128, 128, 128));
-    colors.push_back(QColor(128, 128, 128));
-    colors.push_back(QColor(128, 128, 128));
-    colors.push_back(QColor(128, 128, 128));
 }
 
 void OGLWindow::startGame() {
@@ -51,8 +34,7 @@ OGLWindow::~OGLWindow()
 {
     makeCurrent();
     delete texture;
-    delete geometries;
-    delete []centralPixel;
+    delete labyrinth;
     doneCurrent();
 }
 
@@ -166,8 +148,6 @@ void OGLWindow::initializeGL() {
     glEnable(GL_CULL_FACE);
     //glEnable(GL_FRONT_AND_BACK);
 
-    geometries = new GeometryEngine;
-
     QVector2D texcoords[] = {
         QVector2D(0, 0),
         QVector2D(0.33, 0),
@@ -225,7 +205,6 @@ void OGLWindow::initLabyrinth() {
     if(labyrinth != 0)
         delete labyrinth;
     labyrinth = new Labyrinth();
-    //labyrinth->addWall(QVector3D(5, 5, 5) , QVector3D(0,0,0));
 
     labyrinth->addWall(QVector3D(20, 0.5, 20), QVector3D(0, -0.5, 0));
     labyrinth->addWall(QVector3D(20, 0.5, 20), QVector3D(0,  6.5, 0));
@@ -242,39 +221,10 @@ void OGLWindow::initLabyrinth() {
 
     labyrinth->addWallMask(0, 127 ^ BoxDrawObject::Top);
     labyrinth->addWallMask(1, 127 ^ BoxDrawObject::Bottom);
-    //labyrinth->addWallMask(2, BoxDrawObject::Front | BoxDrawObject::Right);
-    //labyrinth->addWallMask(3, BoxDrawObject::Front | BoxDrawObject::Left);
-    //labyrinth->addWallMask(4, BoxDrawObject::Back | BoxDrawObject::Left);
-    //labyrinth->addWallMask(5, BoxDrawObject::Back | BoxDrawObject::Right);
     labyrinth->addWallMask(6, BoxDrawObject::Back);
     labyrinth->addWallMask(7, BoxDrawObject::Right);
     labyrinth->addWallMask(8, BoxDrawObject::Front);
     labyrinth->addWallMask(9, BoxDrawObject::Left);
-
-    labyrinth->addIgnore(0, labyrinth->getWallColor(0));
-    labyrinth->addIgnore(1, labyrinth->getWallColor(1));
-
-    labyrinth->addIgnore(2, labyrinth->getWallColor(2));
-    labyrinth->addIgnore(3, labyrinth->getWallColor(3));
-    labyrinth->addIgnore(4, labyrinth->getWallColor(4));
-    labyrinth->addIgnore(5, labyrinth->getWallColor(5));
-
-    labyrinth->addIgnore(6, labyrinth->getWallColor(6));
-    labyrinth->addIgnore(6, labyrinth->getWallColor(2));
-    labyrinth->addIgnore(6, labyrinth->getWallColor(3));
-
-    labyrinth->addIgnore(7, labyrinth->getWallColor(7));
-    labyrinth->addIgnore(7, labyrinth->getWallColor(3));
-    labyrinth->addIgnore(7, labyrinth->getWallColor(4));
-
-    labyrinth->addIgnore(8, labyrinth->getWallColor(8));
-    labyrinth->addIgnore(8, labyrinth->getWallColor(4));
-    labyrinth->addIgnore(8, labyrinth->getWallColor(5));
-
-    labyrinth->addIgnore(9, labyrinth->getWallColor(9));
-    labyrinth->addIgnore(9, labyrinth->getWallColor(5));
-    labyrinth->addIgnore(9, labyrinth->getWallColor(2));
-
 
     labyrinth->addWall(QVector3D(16.5, 3, 0.5), QVector3D(-2.5, 3, -13.5));
     labyrinth->addWall(QVector3D(0.5, 3, 13.5), QVector3D(13.5, 3, -0.5));
@@ -306,8 +256,9 @@ void OGLWindow::paintGL() {
 
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //program.setUniformValue("rendTexture", rendTexture);
     texture->bind();
+
+    lightingProgram.bind();
 
     // Calculate model view transformation
     QMatrix4x4 matrix;
@@ -316,78 +267,47 @@ void OGLWindow::paintGL() {
     matrix.rotate(rotation);
     matrix.scale(0.05);
 
-    /*
-    //---Search nearest box--
-    program.bind();
-    program.setUniformValue("rendTexture", 0);
-
-    for(int i = 0; i < qMin(labyrinth->getWallCount(), 10); i++) {
-        // Set modelview-projection matrix
-        program.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
-        program.setUniformValue("color", labyrinth->getWallColor(i));
-
-        // Draw cube geometry
-        boxDraw->draw(&program);
-    }
-
-    glReadPixels(geometry().width() / 2, geometry().height() / 2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, centralPixel);
-
-    ignoreColorId.setRgb(centralPixel[0], centralPixel[1], centralPixel[2]);
-    program.setUniformValue("rendTexture", rendTexture);
-    //--- ---
-*/
-
     QMatrix4x4 normal_matrix;
     normal_matrix.rotate(rotation);
-    ignoreColorId.setRgb(0, 0, 0);
-    //---render box---
-    lightingProgram.bind();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    lightingProgram.setUniformValue("normal_matrix", normal_matrix);
+    //---render---
 
     // Ball
     // Set modelview matrix
     lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getBallMatrix());
+
     // Set modelview-projection matrix
     lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getBallMatrix());
+
     lightingProgram.setUniformValue("color", QColor(0, 0, 0));
+
     // Draw cube geometry
-    boxDraw->draw(&lightingProgram);\
+    boxDraw->draw(&lightingProgram);
 
     // Finish
     // Set modelview matrix
     lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getFinishMatrix());
+
     // Set modelview-projection matrix
     lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getFinishMatrix());
+
     lightingProgram.setUniformValue("color", QColor(255, 255, 255));
+
     // Draw cube geometry
-    boxDraw->draw(&lightingProgram);\
+    boxDraw->draw(&lightingProgram);
 
     lightingProgram.setUniformValue("color", QColor(50, 205, 50, 200));
     for(int i = 0; i < labyrinth->getWallCount(); i++) {
-        if(!labyrinth->isIgnore(i, ignoreColorId)) {
-            lightingProgram.setUniformValue("normal_matrix", normal_matrix);
-            // Set modelview matrix
-            lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getWallMatrix(i));
-            // Set modelview-projection matrix
-            lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
+        // Set modelview matrix
+        lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getWallMatrix(i));
 
-            //lightingProgram.setUniformValue("color", colors[i]);
+        // Set modelview-projection matrix
+        lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
 
-            // Draw cube geometry
-            boxDraw->setMask(labyrinth->getWallMask(i));
-            boxDraw->draw(&lightingProgram);\
-        }
+        // Draw cube geometry
+        boxDraw->setMask(labyrinth->getWallMask(i));
+        boxDraw->draw(&lightingProgram);
     }
-
-
-    //--- ---
-    //program.setUniformValue("rendTexture", 1);
-    //QMatrix4x4 matrix2;
-    //matrix2.translate(-0.5, 0.5, 0);
-    //matrix2.scale(0.5);
-    //program.setUniformValue("mvp_matrix", matrix2);
-    //plane->draw(&program);
 }
 
 void OGLWindow::timerEvent(QTimerEvent *)

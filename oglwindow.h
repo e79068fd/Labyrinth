@@ -2,7 +2,6 @@
 #define OGLWindow_H
 
 #include "geometryengine.h"
-#include "box.h"
 #include "labyrinth.h"
 #include <QAccelerometer>
 #include <QAccelerometerReading>
@@ -23,8 +22,6 @@
 #include <QVector>
 #include <qmath.h>
 #include <QTime>
-
-class GeometryEngine;
 
 namespace Ui {
 class OGLWindow;
@@ -59,7 +56,6 @@ private:
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     QOpenGLShaderProgram lightingProgram;
-    GeometryEngine *geometries;
 
     QOpenGLTexture *texture;
 
@@ -69,10 +65,6 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
-
-    QVector<QColor> colors;
-    GLubyte* centralPixel;
-    QColor ignoreColorId;
 
     GLint rendTexture;
 

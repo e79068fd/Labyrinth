@@ -18,7 +18,6 @@ QMatrix4x4 toQMatrix4x4(btScalar* m) {
 }
 
 Labyrinth::Labyrinth() {
-    r = 0; g = 0; b = 0;
     isFinish = false;
 
     //Init Physics
@@ -53,8 +52,6 @@ void Labyrinth::addWall(const QVector3D& size, const QVector3D& translate) {
     matrix.scale(size - QVector3D(0.005, 0.005, 0.005));
 
     wallMatrix.push_back(matrix);
-    wallColor.push_back(getNewColor());
-    ignore.push_back(QVector<QColor>());
 
     // Physics part
     btCollisionShape* wallShape = new btBoxShape(toBtVector3(size));
@@ -63,10 +60,6 @@ void Labyrinth::addWall(const QVector3D& size, const QVector3D& translate) {
     btRigidBody::btRigidBodyConstructionInfo wallRigidBodyCI(0, wallMotionState, wallShape, btVector3(0, 0, 0));
     btRigidBody* wallRigidBody = new btRigidBody(wallRigidBodyCI);
     dynamicsWorld->addRigidBody(wallRigidBody);
-}
-
-void Labyrinth::addIgnore(int index, QColor color) {
-    ignore[index].push_back(color);
 }
 
 void Labyrinth::addBall(const QVector3D& translate) {
@@ -100,30 +93,8 @@ const QMatrix4x4& Labyrinth::getWallMatrix(int index) {
     return wallMatrix[index];
 }
 
-const QColor& Labyrinth::getWallColor(int index) {
-    return wallColor[index];
-}
-
-const QVector<QColor>& Labyrinth::getIgnore(int index) {
-    return ignore[index];
-}
-
 int Labyrinth::getWallCount() {
     return wallMatrix.size();
-}
-
-QColor Labyrinth::getNewColor() {
-    r++;
-    if(r > 255) {
-        r = 0;
-        g++;
-        if(g > 255) {
-            g = 0;
-            b++;
-            //b > 255
-        }
-    }
-    return QColor(r, g, b);
 }
 
 QMatrix4x4 Labyrinth::getBallMatrix(int index) {
@@ -147,10 +118,6 @@ int Labyrinth::getWallMask(int index) {
 void Labyrinth::setGravity(const QVector3D& v) {
     ballRigidBody->setGravity(toBtVector3(v));
     ballRigidBody->activate(true);
-}
-
-bool Labyrinth::isIgnore(int index, const QColor& color) {
-    return !(index >= ignore.size() || ignore[index].indexOf(color) == -1);
 }
 
 bool Labyrinth::checkFinish() {

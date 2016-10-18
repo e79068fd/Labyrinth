@@ -16,7 +16,6 @@ SOURCES += main.cpp \
     oglwindow.cpp \
     mainwindow.cpp \
     geometryengine.cpp \
-    box.cpp \
     ../lib/bullet/LinearMath/*.cpp\
     ../lib/bullet/BulletCollision/BroadphaseCollision/*.cpp\
     ../lib/bullet/BulletCollision/CollisionDispatch/*.cpp\
@@ -33,7 +32,6 @@ HEADERS  += \
     oglwindow.h \
     mainwindow.h \
     geometryengine.h \
-    box.h \
     ../lib/bullet/LinearMath/*.h\
     ../lib/bullet/BulletCollision/BroadphaseCollision/*.h\
     ../lib/bullet/BulletCollision/CollisionDispatch/*.h\

@@ -15,14 +15,11 @@ public:
     ~Labyrinth();
 
     void addWall(const QVector3D& size, const QVector3D& translate);
-    void addIgnore(int index, QColor color);
     void addBall(const QVector3D& translate);
     void addFinish(const QVector3D& translate);
     void addWallMask(int index, int mask);
 
     const QMatrix4x4& getWallMatrix(int index);
-    const QColor& getWallColor(int index);
-    const QVector<QColor>& getIgnore(int index);
     int getWallCount();
     int getWallMask(int index);
 
@@ -38,11 +35,7 @@ public:
 
 private:
     QVector<QMatrix4x4> wallMatrix;
-    QVector<QColor> wallColor;
-    QVector<QVector<QColor>> ignore;
-
-    int r, g, b;
-    QColor getNewColor();
+    QMap<int, int> wallMask;
 
     btBroadphaseInterface* broadphase;
     btDefaultCollisionConfiguration* collisionConfiguration;
@@ -55,8 +48,6 @@ private:
     btRigidBody* finishRigidBody;
     QMatrix4x4 finishMatrix;
     bool isFinish;
-
-    QMap<int, int> wallMask;
 };
 
 #endif // LABYRINTH_H
