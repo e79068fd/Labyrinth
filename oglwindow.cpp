@@ -159,8 +159,8 @@ void OGLWindow::initializeGL() {
 
     boxDraw = new BoxDrawObject;
 
-    icosahedron = new SphereDrawObject(1);
-    sphere = new SphereDrawObject(3);
+    sphere1 = new SphereDrawObject(1);
+    sphere3 = new SphereDrawObject(3);
 }
 
 void OGLWindow::initShaders() {
@@ -288,8 +288,8 @@ void OGLWindow::paintGL() {
 
     lightingProgram.setUniformValue("color", QColor(192, 192, 192));
 
-    // Draw cube geometry
-    sphere->draw(&lightingProgram);
+    // Draw sphere geometry
+    sphere3->draw(&lightingProgram);
 
     lightingProgram.setUniformValue("normal_matrix", normalMatrix);
     // Finish
@@ -301,8 +301,8 @@ void OGLWindow::paintGL() {
 
     lightingProgram.setUniformValue("color", QColor(255, 255, 255));
 
-    // Draw cube geometry
-    icosahedron->draw(&lightingProgram);
+    // Draw sphere geometry
+    sphere1->draw(&lightingProgram);
 
     lightingProgram.setUniformValue("color", QColor(50, 205, 50, 200));
     for(int i = 0; i < labyrinth->getWallCount(); i++) {
