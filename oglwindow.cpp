@@ -209,33 +209,9 @@ void OGLWindow::initLabyrinth() {
         delete labyrinth;
     labyrinth = new Labyrinth();
 
-    labyrinth->addWall(QVector3D(20, 0.5, 20), QVector3D(0, -0.5, 0));
-    labyrinth->addWall(QVector3D(20, 0.5, 20), QVector3D(0,  6.5, 0));
-
-    labyrinth->addWall(QVector3D(0.5, 3, 0.5), QVector3D(-19.5, 3, -19.5));
-    labyrinth->addWall(QVector3D(0.5, 3, 0.5), QVector3D( 19.5, 3, -19.5));
-    labyrinth->addWall(QVector3D(0.5, 3, 0.5), QVector3D( 19.5, 3,  19.5));
-    labyrinth->addWall(QVector3D(0.5, 3, 0.5), QVector3D(-19.5, 3,  19.5));
-
-    labyrinth->addWall(QVector3D( 19, 3, 0.5), QVector3D(  0, 3, -19.5));
-    labyrinth->addWall(QVector3D(0.5, 3,  19), QVector3D( 19.5, 3, 0));
-    labyrinth->addWall(QVector3D( 19, 3, 0.5), QVector3D(  0, 3,  19.5));
-    labyrinth->addWall(QVector3D(0.5, 3,  19), QVector3D(-19.5, 3, 0));
-
-    labyrinth->addWallMask(0, 127 ^ BoxDrawObject::Top);
-    labyrinth->addWallMask(1, 127 ^ BoxDrawObject::Bottom);
-    labyrinth->addWallMask(6, BoxDrawObject::Back);
-    labyrinth->addWallMask(7, BoxDrawObject::Right);
-    labyrinth->addWallMask(8, BoxDrawObject::Front);
-    labyrinth->addWallMask(9, BoxDrawObject::Left);
-
-    labyrinth->addWall(QVector3D(16.5, 3, 0.5), QVector3D(-2.5, 3, -13.5));
-    labyrinth->addWall(QVector3D(0.5, 3, 13.5), QVector3D(13.5, 3, -0.5));
-    labyrinth->addWall(QVector3D( 10, 3, 0.5), QVector3D(4, 3, 13.5));
-    labyrinth->addWall(QVector3D(0.5, 3, 9.5), QVector3D(-5.5, 3, 4.5));
-
-    labyrinth->addBall(QVector3D(0, 3, 0));
-    labyrinth->addFinish(QVector3D(-17, 3, -17));
+    LabyrinthGenerator generator;
+    generator.generate();
+    generator.matchLabyrinth(labyrinth);
 }
 
 void OGLWindow::resizeGL(int w, int h) {

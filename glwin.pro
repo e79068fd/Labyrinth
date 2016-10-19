@@ -26,7 +26,8 @@ SOURCES += main.cpp \
     ../lib/bullet/BulletDynamics/ConstraintSolver/*.cpp\
     ../lib/bullet/BulletDynamics/Dynamics/*.cpp\
     ../lib/bullet/BulletDynamics/Vehicle/*.cpp \
-    labyrinth.cpp
+    labyrinth.cpp \
+    labyrinthgenerator.cpp
 
 HEADERS  += \
     oglwindow.h \
@@ -42,7 +43,8 @@ HEADERS  += \
     ../lib/bullet/BulletDynamics/ConstraintSolver/*.h\
     ../lib/bullet/BulletDynamics/Dynamics/*.h\
     ../lib/bullet/BulletDynamics/Vehicle/*.h \
-    labyrinth.h
+    labyrinth.h \
+    labyrinthgenerator.h
 
 INCLUDEPATH += ../lib/bullet
 

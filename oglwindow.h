@@ -3,8 +3,7 @@
 
 #include "geometryengine.h"
 #include "labyrinth.h"
-#include <QAccelerometer>
-#include <QAccelerometerReading>
+#include "labyrinthgenerator.h"
 
 #include <QWindow>
 #include <QOpenGLWindow>
@@ -22,6 +21,8 @@
 #include <QVector>
 #include <qmath.h>
 #include <QTime>
+#include <QAccelerometer>
+#include <QAccelerometerReading>
 
 namespace Ui {
 class OGLWindow;
