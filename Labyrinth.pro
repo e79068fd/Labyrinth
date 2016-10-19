@@ -8,7 +8,7 @@ QT       += core gui opengl sensors
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = glwin
+TARGET = Labyrinth
 TEMPLATE = app
 
 
