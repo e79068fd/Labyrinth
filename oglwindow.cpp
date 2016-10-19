@@ -136,7 +136,7 @@ void OGLWindow::initializeGL() {
     glClearColor(1.0f, 1.0f, 0.94f, 1);
 
     initShaders();
-    initTextures();
+    //initTextures();
 
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
@@ -190,6 +190,7 @@ void OGLWindow::initShaders() {
 }
 
 void OGLWindow::initTextures() {
+    /*
     // Load cube.png image
     texture = new QOpenGLTexture(QImage(":/cube.png").mirrored());
 
@@ -202,6 +203,7 @@ void OGLWindow::initTextures() {
     // Wrap texture coordinates by repeating
     // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
     texture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    */
 }
 
 void OGLWindow::initLabyrinth() {
@@ -235,7 +237,7 @@ void OGLWindow::paintGL() {
 
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    texture->bind();
+    //texture->bind();
 
     lightingProgram.bind();
 
