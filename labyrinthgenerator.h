@@ -3,6 +3,7 @@
 
 #include "labyrinth.h"
 #include "geometryengine.h"
+#include "preferences.h"
 
 #include <QVector>
 

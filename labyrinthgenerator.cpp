@@ -5,7 +5,8 @@ LabyrinthGenerator::LabyrinthGenerator() {
 }
 
 void LabyrinthGenerator::generate() {
-    width = 7; length = 7; // TODO get it from prefernces
+    Preferences* pref = Preferences::instance();
+    width = pref->take("width").toInt(); length = pref->take("length").toInt();
     srand(time(0));
     QVector<int> filler;
     filler.fill(Wall, length * 2 + 1);
