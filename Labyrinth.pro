@@ -72,5 +72,6 @@ DISTFILES += \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 RESOURCES += \
-    shaders.qrc
+    shaders.qrc \
+    json.qrc
 
