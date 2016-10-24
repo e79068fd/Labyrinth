@@ -100,8 +100,7 @@ void LabyrinthGenerator::dfs(const QPoint &v) {
             labyrinthMap[u.y() - path[i].y()][u.x() - path[i].x()] = Floor;
             labyrinthMap[u.y()][u.x()] = Floor;
             dfs(u);
-        } else {
-            path.remove(i);
         }
+        path.remove(i);
     }
 }
