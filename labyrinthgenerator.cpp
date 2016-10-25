@@ -6,7 +6,7 @@ LabyrinthGenerator::LabyrinthGenerator() {
 
 void LabyrinthGenerator::generate() {
     Preferences* pref = Preferences::instance();
-    width = pref->take("width").toInt(); length = pref->take("length").toInt();
+    width = pref->value("width").toInt(); length = pref->value("length").toInt();
     srand(time(0));
     QVector<int> filler;
     filler.fill(Wall, length * 2 + 1);

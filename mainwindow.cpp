@@ -26,7 +26,8 @@ void MainWindow::newGame() {
 }
 
 void MainWindow::preferences() {
-
+    DialogPreferences dialog;
+    dialog.exec();
 }
 
 void MainWindow::endGame() {

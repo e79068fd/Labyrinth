@@ -28,7 +28,8 @@ SOURCES += main.cpp \
     ../lib/bullet/BulletDynamics/Vehicle/*.cpp \
     labyrinth.cpp \
     labyrinthgenerator.cpp \
-    preferences.cpp
+    preferences.cpp \
+    dialogpreferences.cpp
 
 HEADERS  += \
     oglwindow.h \
@@ -46,12 +47,14 @@ HEADERS  += \
     ../lib/bullet/BulletDynamics/Vehicle/*.h \
     labyrinth.h \
     labyrinthgenerator.h \
-    preferences.h
+    preferences.h \
+    dialogpreferences.h
 
 INCLUDEPATH += ../lib/bullet
 
 FORMS    += \
-    mainwindow.ui
+    mainwindow.ui \
+    dialogpreferences.ui
 
 CONFIG += mobility
 MOBILITY = 
