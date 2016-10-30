@@ -15,7 +15,7 @@ class LabyrinthGenerator {
 public:
     LabyrinthGenerator();
     void generate();
-    void matchLabyrinth(Labyrinth* labyrinth);
+    void fill(Labyrinth* labyrinth);
 
 private:
     enum {Wall, Floor, Checked};

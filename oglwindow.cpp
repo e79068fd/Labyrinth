@@ -211,9 +211,9 @@ void OGLWindow::initLabyrinth() {
         delete labyrinth;
     labyrinth = new Labyrinth();
 
-    LabyrinthGenerator generator;
-    generator.generate();
-    generator.matchLabyrinth(labyrinth);
+    LabyrinthGenerator builder;
+    builder.generate();
+    builder.fill(labyrinth);
 }
 
 void OGLWindow::resizeGL(int w, int h) {
@@ -283,7 +283,7 @@ void OGLWindow::paintGL() {
     sphere1->draw(&lightingProgram);
 
     lightingProgram.setUniformValue("color", QColor(50, 205, 50, 200));
-    for(int i = 0; i < labyrinth->getWallCount(); i++) {
+    for(int i = 0; i < labyrinth->getNumWall(); i++) {
         // Set modelview matrix
         lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getWallMatrix(i));
 
@@ -320,15 +320,14 @@ void OGLWindow::timerEvent(QTimerEvent *)
             close();
         }
     } else {
-        QMatrix4x4 matrix;
-        matrix.rotate(rotation);
         QAccelerometerReading* read = accelerometer.reading();
         QVector3D gravity;
         if(read)
             gravity = QVector3D(read->x(), read->y(), read->z()) * -1;
         else
             gravity = QVector3D(0, 0, -10);
-        labyrinth->setGravity((gravity * matrix).normalized() * 30);
+        labyrinth->setGravity(gravity);
+        labyrinth->setRotation(rotation);
         //Step simulation
         labyrinth->step();
     }

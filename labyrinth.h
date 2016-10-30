@@ -20,16 +20,16 @@ public:
     void addWallMask(int index, int mask);
 
     const QMatrix4x4& getWallMatrix(int index);
-    int getWallCount();
+    int getNumWall();
     int getWallMask(int index);
 
     QMatrix4x4 getBallMatrix(int index = 0);
     const QMatrix4x4& getFinishMatrix(int index = 0);
     QQuaternion getBallRotation(int index = 0);
 
-    void setGravity(const QVector3D& v);
+    void setGravity(const QVector3D& g);
+    void setRotation(const QQuaternion& rotation);
 
-    bool isIgnore(int index, const QColor &color);
     bool checkFinish();
 
     void step();
@@ -49,6 +49,8 @@ private:
     btRigidBody* finishRigidBody;
     QMatrix4x4 finishMatrix;
     bool isFinish;
+
+    QVector3D gravity;
 };
 
 #endif // LABYRINTH_H

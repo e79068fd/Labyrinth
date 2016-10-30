@@ -93,7 +93,7 @@ const QMatrix4x4& Labyrinth::getWallMatrix(int index) {
     return wallMatrix[index];
 }
 
-int Labyrinth::getWallCount() {
+int Labyrinth::getNumWall() {
     return wallMatrix.size();
 }
 
@@ -122,8 +122,14 @@ int Labyrinth::getWallMask(int index) {
     return 0;
 }
 
-void Labyrinth::setGravity(const QVector3D& v) {
-    ballRigidBody->setGravity(toBtVector3(v));
+void Labyrinth::setGravity(const QVector3D& g) {
+    gravity = g;
+}
+
+void Labyrinth::setRotation(const QQuaternion& rotation) {
+    QMatrix4x4 matrix;
+    matrix.rotate(rotation);
+    ballRigidBody->setGravity(toBtVector3(gravity * matrix * 5));
     ballRigidBody->activate(true);
 }
 

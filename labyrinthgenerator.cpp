@@ -15,7 +15,7 @@ void LabyrinthGenerator::generate() {
     dfs(QPoint(1, 1));
 }
 
-void LabyrinthGenerator::matchLabyrinth(Labyrinth *labyrinth) {
+void LabyrinthGenerator::fill(Labyrinth *labyrinth) {
     for(int j = 0; j < length * 2 + 1; j++)
         labyrinthMap[0][j] = Checked;
     for(int j = 0; j < length * 2 + 1; j++)
