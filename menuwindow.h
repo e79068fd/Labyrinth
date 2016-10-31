@@ -9,19 +9,19 @@
 #include <QTimer>
 
 namespace Ui {
-class MainWindow;
+class MenuWindow;
 }
 
-class MainWindow : public QMainWindow
+class MenuWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit MenuWindow(QWidget *parent = 0);
+    ~MenuWindow();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MenuWindow *ui;
 
     OGLWindow* gameWindow;
 

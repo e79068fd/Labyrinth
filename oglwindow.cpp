@@ -252,46 +252,49 @@ void OGLWindow::paintGL() {
     normalMatrix.rotate(rotation);
     lightingProgram.setUniformValue("normal_matrix", normalMatrix);
     //---render---
-
-    // Ball
-    // Set modelview matrix
-    QMatrix4x4 normalMatrixForBall;
-    normalMatrixForBall.rotate(rotation);
-    normalMatrixForBall.rotate(labyrinth->getBallRotation());
-    lightingProgram.setUniformValue("normal_matrix", normalMatrixForBall);
-    lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getBallMatrix());
-
-    // Set modelview-projection matrix
-    lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getBallMatrix());
-
-    lightingProgram.setUniformValue("color", QColor(192, 192, 192));
-
-    // Draw sphere geometry
-    sphere3->draw(&lightingProgram);
-
-    lightingProgram.setUniformValue("normal_matrix", normalMatrix);
-    // Finish
-    // Set modelview matrix
-    lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getFinishMatrix());
-
-    // Set modelview-projection matrix
-    lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getFinishMatrix());
-
-    lightingProgram.setUniformValue("color", QColor(255, 255, 255));
-
-    // Draw sphere geometry
-    sphere1->draw(&lightingProgram);
-
-    lightingProgram.setUniformValue("color", QColor(50, 205, 50, 200));
-    for(int i = 0; i < labyrinth->getNumWall(); i++) {
-        // Set modelview matrix
-        lightingProgram.setUniformValue("mvp_matrix", matrix * labyrinth->getWallMatrix(i));
+    for(const Ball& b: labyrinth->getBall()) {
+        QMatrix4x4 normalMatrixForBall;
+        normalMatrixForBall.rotate(rotation);
+        normalMatrixForBall.rotate(b.getRotation());
+        lightingProgram.setUniformValue("normal_matrix", normalMatrixForBall);
+        lightingProgram.setUniformValue("mvp_matrix", matrix * b.getMatrix());
 
         // Set modelview-projection matrix
-        lightingProgram.setUniformValue("mvp_matrix", projection * matrix * labyrinth->getWallMatrix(i));
+        lightingProgram.setUniformValue("mvp_matrix", projection * matrix * b.getMatrix());
+
+        lightingProgram.setUniformValue("color", QColor(192, 192, 192));
+
+        // Draw sphere geometry
+        sphere3->draw(&lightingProgram);
+    }
+
+
+    lightingProgram.setUniformValue("normal_matrix", normalMatrix);
+
+    for(const LabyrinthObject& f: labyrinth->getFinish()) {
+        // Set modelview matrix
+        lightingProgram.setUniformValue("mvp_matrix", matrix * f.getMatrix());
+
+        // Set modelview-projection matrix
+        lightingProgram.setUniformValue("mvp_matrix", projection * matrix * f.getMatrix());
+
+        lightingProgram.setUniformValue("color", QColor(255, 255, 255));
+
+        // Draw sphere geometry
+        sphere1->draw(&lightingProgram);
+    }
+
+
+    lightingProgram.setUniformValue("color", QColor(50, 205, 50, 200));
+    for(const Wall& w: labyrinth->getWall()) {
+        // Set modelview matrix
+        lightingProgram.setUniformValue("mvp_matrix", matrix * w.getMatrix());
+
+        // Set modelview-projection matrix
+        lightingProgram.setUniformValue("mvp_matrix", projection * matrix * w.getMatrix());
 
         // Draw cube geometry
-        boxDraw->setMask(labyrinth->getWallMask(i));
+        boxDraw->setMask(w.getMask());
         boxDraw->draw(&lightingProgram);
     }
 }

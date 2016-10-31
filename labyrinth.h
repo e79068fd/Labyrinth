@@ -8,24 +8,53 @@
 #include <QDebug>
 #include <btBulletDynamicsCommon.h>
 
+class LabyrinthObject {
+public:
+    LabyrinthObject() { }
+    LabyrinthObject(const QVector3D& translate);
+
+    btRigidBody* getBody() const;
+    const QMatrix4x4& getMatrix() const;
+protected:
+    btRigidBody* body;
+    QMatrix4x4 matrix;
+};
+
+class Wall: public LabyrinthObject {
+public:
+    Wall() { }
+    Wall(const QVector3D& s, const QVector3D& translate);
+
+    void setMask(int m);
+    int getMask() const;
+private:
+    int mask;
+};
+
+class Ball: public LabyrinthObject {
+public:
+    Ball() { }
+    Ball(const QVector3D& translate);
+
+    void update();
+    const QQuaternion& getRotation() const;
+private:
+    QQuaternion rotation;
+};
+
 class Labyrinth {
 
 public:
     Labyrinth();
     ~Labyrinth();
 
-    void addWall(const QVector3D& size, const QVector3D& translate);
-    void addBall(const QVector3D& translate);
-    void addFinish(const QVector3D& translate);
-    void addWallMask(int index, int mask);
+    void addWall(const Wall& w);
+    void addBall(const Ball& b);
+    void addFinish(const LabyrinthObject& f);
 
-    const QMatrix4x4& getWallMatrix(int index);
-    int getNumWall();
-    int getWallMask(int index);
-
-    QMatrix4x4 getBallMatrix(int index = 0);
-    const QMatrix4x4& getFinishMatrix(int index = 0);
-    QQuaternion getBallRotation(int index = 0);
+    const QVector<Wall>& getWall();
+    const QVector<Ball>& getBall();
+    const QVector<LabyrinthObject>& getFinish();
 
     void setGravity(const QVector3D& g);
     void setRotation(const QQuaternion& rotation);
@@ -35,19 +64,16 @@ public:
     void step();
 
 private:
-    QVector<QMatrix4x4> wallMatrix;
-    QMap<int, int> wallMask;
-
     btBroadphaseInterface* broadphase;
     btDefaultCollisionConfiguration* collisionConfiguration;
     btCollisionDispatcher* dispatcher;
     btSequentialImpulseConstraintSolver* solver;
     btDiscreteDynamicsWorld* dynamicsWorld;
 
-    btRigidBody* ballRigidBody;
+    QVector<Wall> wall;
+    QVector<Ball> ball;
+    QVector<LabyrinthObject> finish;
 
-    btRigidBody* finishRigidBody;
-    QMatrix4x4 finishMatrix;
     bool isFinish;
 
     QVector3D gravity;

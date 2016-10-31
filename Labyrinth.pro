@@ -14,7 +14,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     oglwindow.cpp \
-    mainwindow.cpp \
     geometryengine.cpp \
     ../lib/bullet/LinearMath/*.cpp\
     ../lib/bullet/BulletCollision/BroadphaseCollision/*.cpp\
@@ -29,11 +28,11 @@ SOURCES += main.cpp \
     labyrinth.cpp \
     labyrinthgenerator.cpp \
     preferences.cpp \
-    dialogpreferences.cpp
+    dialogpreferences.cpp \
+    menuwindow.cpp
 
 HEADERS  += \
     oglwindow.h \
-    mainwindow.h \
     geometryengine.h \
     ../lib/bullet/LinearMath/*.h\
     ../lib/bullet/BulletCollision/BroadphaseCollision/*.h\
@@ -48,13 +47,14 @@ HEADERS  += \
     labyrinth.h \
     labyrinthgenerator.h \
     preferences.h \
-    dialogpreferences.h
+    dialogpreferences.h \
+    menuwindow.h
 
 INCLUDEPATH += ../lib/bullet
 
 FORMS    += \
-    mainwindow.ui \
-    dialogpreferences.ui
+    dialogpreferences.ui \
+    menuwindow.ui
 
 CONFIG += mobility
 MOBILITY = 

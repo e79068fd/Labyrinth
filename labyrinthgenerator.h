@@ -18,7 +18,7 @@ public:
     void fill(Labyrinth* labyrinth);
 
 private:
-    enum {Wall, Floor, Checked};
+    enum {WALL, FLOOR, CHECKED};
     QVector<QVector<int>> labyrinthMap;
     int width, length;
     bool validate(const QPoint& v);

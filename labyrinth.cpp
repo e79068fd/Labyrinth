@@ -17,6 +17,77 @@ QMatrix4x4 toQMatrix4x4(btScalar* m) {
     return result;
 }
 
+
+LabyrinthObject::LabyrinthObject(const QVector3D& translate) {
+    matrix.translate(translate);
+
+    btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
+
+    btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), toBtVector3(translate)));
+    btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(0, motionState, shape, btVector3(0, 0, 0));
+    body = new btRigidBody(rigidBodyCI);
+}
+
+btRigidBody* LabyrinthObject::getBody() const {
+    return body;
+}
+
+const QMatrix4x4& LabyrinthObject::getMatrix() const {
+    return matrix;
+}
+
+
+Wall::Wall(const QVector3D& s, const QVector3D& translate) {
+    QVector3D size = s - QVector3D(0.005, 0.005, 0.005);
+    matrix.translate(translate);
+    matrix.scale(size);
+
+    btCollisionShape* wallShape = new btBoxShape(toBtVector3(size));
+
+    btDefaultMotionState* wallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), toBtVector3(translate)));
+    btRigidBody::btRigidBodyConstructionInfo wallRigidBodyCI(0, wallMotionState, wallShape, btVector3(0, 0, 0));
+    body = new btRigidBody(wallRigidBodyCI);
+}
+
+void Wall::setMask(int m) {
+    mask = m;
+}
+
+int Wall::getMask() const{
+    return mask;
+}
+
+
+Ball::Ball(const QVector3D &translate) {
+    btCollisionShape* ball = new btSphereShape(1);
+
+    btDefaultMotionState* ballMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), toBtVector3(translate)));
+    btScalar mass = 0.1;
+    btVector3 inertia(0, 0, 0);
+    ball->calculateLocalInertia(mass, inertia);
+    btRigidBody::btRigidBodyConstructionInfo ballRigidBodyCI(mass, ballMotionState, ball, inertia);
+    body = new btRigidBody(ballRigidBodyCI);
+
+    update();
+}
+
+void Ball::update() {
+    btTransform transform;
+    body->getMotionState()->getWorldTransform(transform);
+
+    float oglArray[16];
+    transform.getOpenGLMatrix(oglArray);
+    matrix = toQMatrix4x4(oglArray);
+
+    btQuaternion q = transform.getRotation();
+    rotation = QQuaternion(q.getW(), q.getX(), q.getY(), q.getZ());
+}
+
+const QQuaternion& Ball::getRotation() const {
+    return rotation;
+}
+
+
 Labyrinth::Labyrinth() {
     isFinish = false;
 
@@ -45,81 +116,31 @@ Labyrinth::~Labyrinth() {
     delete broadphase;
 }
 
-void Labyrinth::addWall(const QVector3D& size, const QVector3D& translate) {
-    // Render part
-    QMatrix4x4 matrix;
-    matrix.translate(translate);
-    matrix.scale(size - QVector3D(0.005, 0.005, 0.005));
-
-    wallMatrix.push_back(matrix);
-
-    // Physics part
-    btCollisionShape* wallShape = new btBoxShape(toBtVector3(size));
-
-    btDefaultMotionState* wallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), toBtVector3(translate)));
-    btRigidBody::btRigidBodyConstructionInfo wallRigidBodyCI(0, wallMotionState, wallShape, btVector3(0, 0, 0));
-    btRigidBody* wallRigidBody = new btRigidBody(wallRigidBodyCI);
-    dynamicsWorld->addRigidBody(wallRigidBody);
+void Labyrinth::addWall(const Wall& w) {
+    wall.push_back(w);
+    dynamicsWorld->addRigidBody(w.getBody());
 }
 
-void Labyrinth::addBall(const QVector3D& translate) {
-    btCollisionShape* ball = new btSphereShape(1);
-
-    btDefaultMotionState* ballMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), toBtVector3(translate)));
-    btScalar mass = 0.1;
-    btVector3 inertia(0, 0, 0);
-    ball->calculateLocalInertia(mass, inertia);
-    btRigidBody::btRigidBodyConstructionInfo ballRigidBodyCI(mass, ballMotionState, ball, inertia);
-    ballRigidBody = new btRigidBody(ballRigidBodyCI);
-    dynamicsWorld->addRigidBody(ballRigidBody);
+void Labyrinth::addBall(const Ball& b) {
+    ball.push_back(b);
+    dynamicsWorld->addRigidBody(b.getBody());
 }
 
-void Labyrinth::addFinish(const QVector3D &translate) {
-    finishMatrix.translate(translate);
-
-    btCollisionShape* finishShape = new btBoxShape(btVector3(1, 1, 1));
-
-    btDefaultMotionState* finishMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), toBtVector3(translate)));
-    btRigidBody::btRigidBodyConstructionInfo finishRigidBodyCI(0, finishMotionState, finishShape, btVector3(0, 0, 0));
-    finishRigidBody = new btRigidBody(finishRigidBodyCI);
-    dynamicsWorld->addRigidBody(finishRigidBody);
+void Labyrinth::addFinish(const LabyrinthObject& f) {
+    finish.push_back(f);
+    dynamicsWorld->addRigidBody(f.getBody());
 }
 
-void Labyrinth::addWallMask(int index, int mask) {
-    wallMask.insert(index, mask);
+const QVector<Wall>& Labyrinth::getWall() {
+    return wall;
 }
 
-const QMatrix4x4& Labyrinth::getWallMatrix(int index) {
-    return wallMatrix[index];
+const QVector<Ball>& Labyrinth::getBall() {
+    return ball;
 }
 
-int Labyrinth::getNumWall() {
-    return wallMatrix.size();
-}
-
-QMatrix4x4 Labyrinth::getBallMatrix(int index) {
-    btTransform transform;
-    ballRigidBody->getMotionState()->getWorldTransform(transform);
-    float oglArray[16];
-    transform.getOpenGLMatrix(oglArray);
-    return toQMatrix4x4(oglArray);
-}
-
-QQuaternion Labyrinth::getBallRotation(int index) {
-    btTransform transform;
-    ballRigidBody->getMotionState()->getWorldTransform(transform);
-    btQuaternion q = transform.getRotation();
-    return QQuaternion(q.getW(), q.getX(), q.getY(), q.getZ());
-}
-
-const QMatrix4x4& Labyrinth::getFinishMatrix(int index) {
-    return finishMatrix;
-}
-
-int Labyrinth::getWallMask(int index) {
-    if(wallMask.contains(index))
-        return wallMask[index];
-    return 0;
+const QVector<LabyrinthObject>& Labyrinth::getFinish() {
+    return finish;
 }
 
 void Labyrinth::setGravity(const QVector3D& g) {
@@ -129,8 +150,10 @@ void Labyrinth::setGravity(const QVector3D& g) {
 void Labyrinth::setRotation(const QQuaternion& rotation) {
     QMatrix4x4 matrix;
     matrix.rotate(rotation);
-    ballRigidBody->setGravity(toBtVector3(gravity * matrix * 5));
-    ballRigidBody->activate(true);
+    for(Ball b: ball) {
+        b.getBody()->setGravity(toBtVector3(gravity * matrix * 5));
+        b.getBody()->activate(true);
+    }
 }
 
 bool Labyrinth::checkFinish() {
@@ -145,7 +168,14 @@ void Labyrinth::step() {
         btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
         btCollisionObject* obA = const_cast<btCollisionObject*>(contactManifold->getBody0());
         btCollisionObject* obB = const_cast<btCollisionObject*>(contactManifold->getBody1());
-        if(obA == finishRigidBody || obB == finishRigidBody)
-            isFinish = true;
+        for(LabyrinthObject f: finish) {
+            if(obA == f.getBody() || obB == f.getBody())
+                isFinish = true;
+        }
+    }
+
+
+    for(Ball& b: ball) {
+        b.update();
     }
 }

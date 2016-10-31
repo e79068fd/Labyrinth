@@ -1,9 +1,9 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "menuwindow.h"
+#include "ui_menuwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
+MenuWindow::MenuWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MenuWindow)
 {
     ui->setupUi(this);
 
@@ -14,22 +14,22 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(gameWindow, SIGNAL(endGame()), this, SLOT(endGame()));
 }
 
-MainWindow::~MainWindow()
+MenuWindow::~MenuWindow()
 {
     delete ui;
 }
 
-void MainWindow::newGame() {   
+void MenuWindow::newGame() {
     hide();
     gameWindow->startGame();
     gameWindow->show();
 }
 
-void MainWindow::preferences() {
+void MenuWindow::preferences() {
     DialogPreferences dialog;
     dialog.exec();
 }
 
-void MainWindow::endGame() {
+void MenuWindow::endGame() {
     show();
 }
